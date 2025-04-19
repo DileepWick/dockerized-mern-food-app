@@ -4,6 +4,7 @@ import { getLoggedInUser } from "./util/authUtils";
 
 import LoginPage from "../src/app/login/page";
 import Home from "./pages/Home";
+import ProductForm from "./pages/Form";
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -34,10 +35,19 @@ function App() {
 
         {/* Protected Route */}
         <Route
-          path="/"
+          path="/dasda"
           element={
             <ProtectedRoute>
               <Home />
+
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <ProductForm />
             </ProtectedRoute>
           }
         />

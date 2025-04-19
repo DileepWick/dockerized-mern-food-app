@@ -16,7 +16,6 @@ dotenv.config();
 if (!process.env.JWT_SECRET) {
   const randomSecret = crypto.randomBytes(64).toString('hex'); // Generates a secure random secret key
   process.env.JWT_SECRET = randomSecret;
-  console.log('JWT_SECRET generated dynamically:', process.env.JWT_SECRET); // Log the generated secret
 }
 
 
@@ -51,5 +50,5 @@ connectDB(); // Use the function from your db.js to connect to MongoDB
 
 // Start server
 app.listen(process.env.PORT, () => {
-  console.log(`Server running on port http://localhost:${process.env.PORT}`);
+  console.log(`Auth Service running on http://localhost:${process.env.PORT} ✅`);
 });

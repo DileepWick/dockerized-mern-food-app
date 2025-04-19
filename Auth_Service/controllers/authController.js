@@ -84,14 +84,13 @@ export const loginUser = async (req, res) => {
     // Send user data (excluding sensitive fields)
     res.status(200).json({
       message: "Login successful",
-      user: { id: user._id, email: user.email, role: user.role ,token : token},
+      user: { id: user._id, email: user.email, role: user.role ,token},
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Logout controller
 export const logoutUser = (req, res) => {
@@ -102,4 +101,21 @@ export const logoutUser = (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// Validate token controller
+export const validateToken = async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) return res.status(401).json({ message: "No token provided" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ user: decoded });
+  } catch (err) {
+    res.status(403).json({ message: "Invalid or expired token" });
+  }
+};
+
+
+
 

@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 
+// This function retrieves the logged-in user's information
 export const getLoggedInUser = async (req, res) => {
   try {
     // Fetch user by userId from the token (attached by verifyToken middleware)
