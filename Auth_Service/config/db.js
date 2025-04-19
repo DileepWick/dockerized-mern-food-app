@@ -13,7 +13,7 @@ const connectDB = async () => {
 
     await mongoose.connect(dbURI); // No need for useNewUrlParser and useUnifiedTopology anymore
 
-    console.log("MongoDB connected successfully");
+    console.log("Auth Service MongoDB Connected Successfully! ✅");
   } catch (err) {
     console.error(`❌ MongoDB Connection Failed: ${err.message}`);
   }
