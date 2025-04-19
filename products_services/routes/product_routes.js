@@ -1,11 +1,9 @@
-import express from 'express';
-import { createProduct } from '../controllers/product_controller.js'; // Import your product controller
+import express from "express";
+import { createProduct } from "../controllers/product_controller.js";
+
 
 const router = express.Router();
 
-// Product routes
-router.post('/products', createProduct); // Create a new product
-
+router.post("/products",createProduct);
 
 export default router;
-

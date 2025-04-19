@@ -21,9 +21,28 @@ export const isAuthorized = (user, allowedRoles) => {
 export const logoutUser = async () => {
   try {
     await axiosInstance.post("/auth/logout");
+    Navigate("/login"); // Redirect to login page after logout
+ 
     return true; // Logout successful
   } catch (error) {
     console.error("Logout failed:", error.response?.data?.message || error.message);
     return false;
+  }
+};
+
+
+// ✅ Validate token function
+export const checkTokenValidity = async () => {
+  try {
+    const response = await axiosInstance.post("/auth/validate-token", {}, { withCredentials: true });
+    if (response.status !== 200) {
+      alert("Token is invalid or expired. Please log in again.");
+    }else if (response.status === 200) {
+      alert("Token is valid. You are logged in.");
+    }
+    return response.data.user.userId; // Return token validity status
+  } catch (error) {
+    console.error("Token validation error:", error.response?.data?.message || error.message);
+    return false; // Return false if token is invalid or an error occurs
   }
 };

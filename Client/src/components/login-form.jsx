@@ -30,7 +30,7 @@ export function LoginForm({ className, ...props }) {
         const { token } = response.data;
 
         // Set token in cookies
-        document.cookie = `token=${token}; path=/; Secure; SameSite=Strict`;
+        document.cookie = `token=${token}; path=/; SameSite=Strict; Secure`; 
 
         // Redirect to the Home page
         navigate("/");
