@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/icons";
 import { Separator } from "@/components/ui/separator";
 
 export function LoginForm({ className, ...props }) {
@@ -59,11 +58,11 @@ export function LoginForm({ className, ...props }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <Button variant="outline" className="w-full">
-                  <Icons.google className="mr-2 h-4 w-4" />
+                 
                   Google
                 </Button>
                 <Button variant="outline" className="w-full">
-                  <Icons.github className="mr-2 h-4 w-4" />
+                 
                   GitHub
                 </Button>
               </div>
@@ -121,9 +120,9 @@ export function LoginForm({ className, ...props }) {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <Icons.eyeOff className="h-4 w-4" />
+                        <></>
                       ) : (
-                        <Icons.eye className="h-4 w-4" />
+                        <></>
                       )}
                     </Button>
                   </div>
@@ -155,7 +154,7 @@ export function LoginForm({ className, ...props }) {
               <Button type="submit" className="w-full h-11" disabled={loading}>
                 {loading ? (
                   <>
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                
                     Signing in...
                   </>
                 ) : (
