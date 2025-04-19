@@ -1,3 +1,2 @@
-backend/node_modules
-frontend/node_modules
-backend/src/.env
+Auth_Service/node_modules
+Client/node_modules
