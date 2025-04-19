@@ -33,7 +33,7 @@ export function LoginForm({ className, ...props }) {
         document.cookie = `token=${token}; path=/; Secure; SameSite=Strict`;
 
         // Redirect to the Home page
-        navigate("/all-transactions");
+        navigate("/");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Invalid email or password");

@@ -4,6 +4,7 @@ import { getLoggedInUser } from "./util/authUtils";
 
 import LoginPage from "../src/app/login/page";
 import AllTransactions from "./custom_components/Transactions/Transactions"
+import Home from "./pages/Home";
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -34,10 +35,10 @@ function App() {
 
         {/* Protected Route */}
         <Route
-          path="/all-transactions"
+          path="/"
           element={
             <ProtectedRoute>
-              <AllTransactions />
+              <Home />
             </ProtectedRoute>
           }
         />
