@@ -1,19 +1,52 @@
-import './App.css'
-import Home from './pages/home'
-import { Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getLoggedInUser } from "./util/authUtils";
 
+import LoginPage from "../src/app/login/page";
+import AllTransactions from "./custom_components/Transactions/Transactions"
+
+// Protected Route
+const ProtectedRoute = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch logged-in user
+  useEffect(() => {
+    const fetchUser = async () => {
+      const loggedInUser = await getLoggedInUser();
+      setUser(loggedInUser);
+      setLoading(false);
+    };
+    fetchUser();
+  }, []);
+
+  if (loading) return <p>Loading...</p>; // Prevents redirect before user data loads
+
+  return user ? children : <Navigate to="/login" />;
+};
 
 function App() {
-  
-  
-
   return (
+    <Router>
+      <Routes>
+        {/* Public Route */}
+        <Route path="/login" element={<LoginPage />} />
 
-    <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Protected Route */}
+        <Route
+          path="/all-transactions"
+          element={
+            <ProtectedRoute>
+              <AllTransactions />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect unknown routes to login */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
-    
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
