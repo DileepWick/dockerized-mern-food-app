@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { getLoggedInUser } from "./util/authUtils";
 
 import LoginPage from "../src/app/login/page";
-import AllTransactions from "./custom_components/Transactions/Transactions"
 import Home from "./pages/Home";
 
 // Protected Route

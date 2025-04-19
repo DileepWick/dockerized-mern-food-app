@@ -6,9 +6,7 @@ import connectDB  from './config/db.js'; // Import your DB connection module
 import cors from 'cors';
 
 //Routes
-import categoryRoutes from "./routes/categoryRoutes.js";
 import authRoutes from './routes/authRoutes.js';
-import transactionRoutes from './routes/transactionRoutes.js';
 
 
 // Load environment variables
@@ -45,8 +43,6 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/transactions', transactionRoutes);
 
 app.get('/', (req, res) => res.send('Hello from the backend!'));
 
