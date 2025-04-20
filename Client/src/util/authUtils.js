@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 // ✅ Get logged-in user
 export const getLoggedInUser = async () => {
   try {
-    const response = await axiosInstance.get("/me");
+    const response = await axiosInstance.get("/api/auth/me");
     return response.data; // Return user details
   } catch (error) {
     console.error("Error fetching user:", error.response?.data?.message || error.message);
