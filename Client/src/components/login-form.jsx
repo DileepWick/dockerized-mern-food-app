@@ -23,14 +23,15 @@ export function LoginForm({ className, ...props }) {
     setLoading(true);
 
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await api.post("/api/auth/login", { email, password });
+
 
       if (response.status === 200) {
         // Assuming the token is returned as response.data.token
         const { token } = response.data;
 
         // Set token in cookies
-        document.cookie = `token=${token}; path=/; SameSite=Strict; Secure`; 
+       // document.cookie = `token=${token}; path=/; SameSite=Strict; Secure`; 
 
         // Redirect to the Home page
         navigate("/");

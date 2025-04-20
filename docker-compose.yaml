@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  auth-service:
+    build: ./Auth_Service
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    networks:
+      - app-network
+
+  products-service:
+    build: ./products_services
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+    networks:
+      - app-network
+
+  client-app:
+    build: ./Client
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - products-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
