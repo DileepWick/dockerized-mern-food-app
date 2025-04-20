@@ -12,7 +12,7 @@ const ProductForm = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8099/api/products/products",
+        "/products-service/api/products/products",
         { name, price },
         {
           withCredentials: true, // Send cookies (token) to backend

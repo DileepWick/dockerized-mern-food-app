@@ -5,7 +5,7 @@ export const validateToken = async (token) => {
   
   try {
     const response = await axios.post(
-      'http://localhost:8098/api/auth/validate-token',
+      '/api/auth/validate-token',
       { token } // 👈 Send token in body
     );
     return response.data.user; // Contains userId and role
