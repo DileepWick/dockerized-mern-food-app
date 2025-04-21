@@ -147,6 +147,7 @@ export function LoginForm({ className, ...props }) {
                 <Button
                   variant='link'
                   className='px-0 font-normal text-red-600'
+                  onClick={() => navigate('/register')}
                 >
                   Sign up
                 </Button>
