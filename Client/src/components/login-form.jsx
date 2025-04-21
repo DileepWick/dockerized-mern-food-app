@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../util/axiosInstance'; // Import centralized API instance
+import {authService} from '../util/axiosInstances'; // Import centralized API instance
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,7 +22,7 @@ export function LoginForm({ className, ...props }) {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await authService.post('/auth/login', { email, password });
 
       if (response.status === 200) {
         // Assuming the token is returned as response.data.token

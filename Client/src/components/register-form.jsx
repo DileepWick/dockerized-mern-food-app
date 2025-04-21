@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../util/axiosInstance';
+import {authService} from '../util/axiosInstances';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -95,7 +95,7 @@ export function RegisterForm({ className, ...props }) {
     };
 
     try {
-      const response = await api.post('/auth/register', userData);
+      const response = await authService.post('/auth/register', userData);
 
       if (response.status === 201) {
         // Redirect to login page

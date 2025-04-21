@@ -1,11 +1,10 @@
-import axios from "axios";
+import authService from "../utils/axiosInstances.js"; // Import centralized API instance
 
+// Validate token from auth service
 export const validateToken = async (token) => {
-
-  
   try {
-    const response = await axios.post(
-      'http://localhost:8098/api/auth/validate-token',
+    const response = await authService.post(
+      '/auth/validate-token',
       { token } // 👈 Send token in body
     );
     return response.data.user; // Contains userId and role

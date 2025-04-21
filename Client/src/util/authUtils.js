@@ -1,9 +1,9 @@
-import axiosInstance from "./axiosInstance";
+import {authService} from "./axiosInstances.js"; // Import centralized API instance
 
 // ✅ Get logged-in user
 export const getLoggedInUser = async () => {
   try {
-    const response = await axiosInstance.get("/auth/me");
+    const response = await authService.get("/auth/me");
     return response.data; // Return user details
   } catch (error) {
     console.error("Error fetching user:", error.response?.data?.message || error.message);
@@ -20,7 +20,7 @@ export const isAuthorized = (user, allowedRoles) => {
 // ✅ Logout function
 export const logoutUser = async () => {
   try {
-    await axiosInstance.post("/auth/logout");
+    await authService.post("/auth/logout");
     Navigate("/login"); // Redirect to login page after logout
  
     return true; // Logout successful
@@ -34,7 +34,7 @@ export const logoutUser = async () => {
 // ✅ Validate token function
 export const checkTokenValidity = async () => {
   try {
-    const response = await axiosInstance.post("/auth/validate-token", {}, { withCredentials: true });
+    const response = await authService.post("/auth/validate-token", {}, { withCredentials: true });
     if (response.status !== 200) {
       alert("Token is invalid or expired. Please log in again.");
     }else if (response.status === 200) {

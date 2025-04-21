@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import api from "../util/axiosInstance"; // Axios utility to interact with backend API
+import {authService} from "../util/axiosInstances"; // Axios utility to interact with backend API
 
 export function NavUser() {
   const [user, setUser] = useState(null);
@@ -38,7 +38,7 @@ export function NavUser() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await api.get("/auth/me"); // Adjust the endpoint if needed
+        const response = await authService.get("/auth/me"); // Adjust the endpoint if needed
         setUser(response.data);
         console.log(response.data);
       } catch (error) {
