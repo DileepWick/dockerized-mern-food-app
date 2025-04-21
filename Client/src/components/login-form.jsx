@@ -54,10 +54,17 @@ export function LoginForm({ className, ...props }) {
         <CardContent className='grid p-0 md:grid-cols-2'>
           {' '}
           <div className='m-10'>
-            <div className='bg-[#D9E6FF] h-full w-full rounded-2xl'>
+            <div className='bg-[#D9E6FF] h-full w-full rounded-2xl '>
               <p className='relative top-0 left-0 p-5 text-[#1648A6] font-semibold'>
                 SnapBite
               </p>
+              <div className='items-center flex flex-col'>
+                <img
+                  src='https://res.cloudinary.com/dpdrfruja/image/upload/v1745249650/13883529-afe5-4eba-920f-638a3d077051_removalai_preview_el9wiz.png'
+                  alt='img'
+                  className='w-[400px] relative bottom-[-75px]'
+                />
+              </div>
             </div>
           </div>
           <form className='px-20 py-19' onSubmit={handleLogin}>
