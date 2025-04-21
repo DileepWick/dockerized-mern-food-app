@@ -1,10 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getLoggedInUser } from "./util/authUtils";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getLoggedInUser } from './util/authUtils';
 
-import LoginPage from "../src/app/login/page";
-import Home from "./pages/Home";
-import ProductForm from "./pages/Form";
+import LoginPage from '../src/app/login/page';
+import RegisterPage from '../src/app/register/register-page';
+import Home from './pages/Home';
+import ProductForm from './pages/Form';
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -23,7 +29,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) return <p>Loading...</p>; // Prevents redirect before user data loads
 
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to='/login' />;
 };
 
 function App() {
@@ -31,20 +37,20 @@ function App() {
     <Router>
       <Routes>
         {/* Public Route */}
-        <Route path="/login" element={<LoginPage />} />
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/register' element={<RegisterPage />} />
 
         {/* Protected Route */}
         <Route
-          path="/dasda"
+          path='/dasda'
           element={
             <ProtectedRoute>
               <Home />
-
             </ProtectedRoute>
           }
         />
         <Route
-          path="/"
+          path='/'
           element={
             <ProtectedRoute>
               <ProductForm />
@@ -53,7 +59,7 @@ function App() {
         />
 
         {/* Redirect unknown routes to login */}
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path='*' element={<Navigate to='/login' />} />
       </Routes>
     </Router>
   );
