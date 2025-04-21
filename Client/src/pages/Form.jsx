@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import {productsService} from "../util/axiosInstances"; // Import the centralized API instance
 
 const ProductForm = () => {
   const [name, setName] = useState("");
@@ -11,8 +11,8 @@ const ProductForm = () => {
     setMessage("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:8099/api/products/products",
+      const response = await productsService.post(
+        "/products/products",
         { name, price },
         {
           withCredentials: true, // Send cookies (token) to backend
