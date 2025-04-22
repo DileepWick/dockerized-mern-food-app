@@ -12,7 +12,7 @@ import RegisterPage from '../src/app/register/register-page';
 import Home from './pages/Home';
 import ProductForm from './pages/Form';
 import RestaurantForm from './pages/RestaurantForm';
-import RestaurantDashboard from './pages/RestaurantDashboard';
+import SellerDashboard from './pages/sellerDashboard';
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -43,7 +43,7 @@ function App() {
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/restaurantForm' element={<RestaurantForm />} />
-        <Route path='/restaurantDashboard' element={<RestaurantForm />} />
+        <Route path='/sellerDashboard' element={<SellerDashboard />} />
 
         {/* Protected Route */}
         <Route

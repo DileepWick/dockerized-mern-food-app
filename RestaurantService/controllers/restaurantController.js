@@ -86,17 +86,3 @@ export const updateRestaurant = async (req, res) => {
     res.status(500).json({ message: 'Failed to update restaurant' });
   }
 };
-
-export const checkOwnership = async (req, res) => {
-  const token = req.cookies.token;
-  const user = await validateToken(token);
-  if (!user) return res.status(401).json({ message: 'Unauthorized' });
-
-  try {
-    const restaurant = await Restaurant.findOne({ owner_id: user.userId });
-    res.status(200).json({ hasRestaurant: !!restaurant });
-  } catch (err) {
-    console.error('Error checking ownership:', err);
-    res.status(500).json({ message: 'Failed to check ownership' });
-  }
-};
