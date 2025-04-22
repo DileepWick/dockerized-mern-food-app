@@ -7,8 +7,8 @@ import {
 import { useEffect, useState } from 'react';
 import { getLoggedInUser } from './util/authUtils';
 
-import LoginPage from '../src/app/login/page';
-import RegisterPage from '../src/app/register/register-page';
+import LoginPage from './app/login/page';
+import RegisterPage from './app/register/register-page';
 import Home from './pages/Home';
 import ProductForm from './pages/Form';
 

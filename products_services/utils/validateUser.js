@@ -4,7 +4,7 @@ import authService from "../utils/axiosInstances.js"; // Import centralized API 
 export const validateToken = async (token) => {
   try {
     const response = await authService.post(
-      '/auth/validate-token',
+      '/api/auth/validate-token',
       { token } // 👈 Send token in body
     );
     return response.data.user; // Contains userId and role

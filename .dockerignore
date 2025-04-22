@@ -1,0 +1,76 @@
+# Node.js dependencies
+node_modules/
+
+# Logs and debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+
+# Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build and output directories
+dist/
+build/
+out/
+tmp/
+temp/
+*.tmp
+
+# Test and coverage
+coverage/
+*.test.js
+test/
+tests/
+
+# Documentation
+README*
+*.md
+docs/
+
+# Local and config
+.local/
+local/
+config.local.*
+*.local.yml
+
+# Docker files
+Dockerfile*
+docker-compose*
+
+# Miscellaneous
+*.DS_Store
+Thumbs.db
+
+# Project-specific: Exclude top-level git and readme
+/.git/
+/.gitignore
+/README*
+
+# Exclude service-level git and readme
+Auth_Service/.git/
+Auth_Service/.gitignore
+Auth_Service/README*
+Client/.git/
+Client/.gitignore
+Client/README*
+products_services/.git/
+products_services/.gitignore
+products_services/README*

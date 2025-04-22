@@ -141,6 +141,10 @@ export const logoutUser = (req, res) => {
 // Validate token controller
 export const validateToken = (req, res) => {
   const { token } = req.body;
+  console.log('Token took by auth service'); // Debugging line
+  console.log(token); // Debugging line
+  console.log("Validating token in auth service"); // Debugging line
+
 
   if (!token) return res.status(401).json({ message: 'No token provided' });
 

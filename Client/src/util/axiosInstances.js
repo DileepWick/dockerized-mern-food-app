@@ -7,7 +7,7 @@ const authService = axios.create({
 });
 
 const productsService = axios.create({
-  baseURL: "http://localhost:8099/api",
+  baseURL: "http://localhost:3001/api",
   withCredentials: true,
 });
 

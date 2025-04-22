@@ -1,0 +1,68 @@
+services:
+  # The following services are built from Dockerfiles located in the respective directories
+  auth_service:
+    build:
+      context: ./auth_service
+      dockerfile: ../auth_service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./auth_service/.env
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+  products_services:
+    build:
+      context: ./products_services
+      dockerfile: ../products_services/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./products_services/.env
+    ports:
+      - "3001:3001"
+    environment:
+      - AUTH_SERVICE_URL=http://auth_service:3000  # 👈 Key line added
+    networks:
+      - backend
+
+  client:
+    build:
+      context: ./client
+      dockerfile: ../client/Dockerfile
+    restart: unless-stopped
+    init: true
+    # Exposes the Vite preview server on port 4173
+    ports:
+      - "4173:4173"
+    networks:
+      - backend
+    depends_on:
+      - auth_service
+      - products_services
+
+  # MongoDB is required for Auth_Service and products_services (see db.js in both)
+  # mongo:
+  #   image: mongo:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - "27017:27017"  # Expose for local development
+  #   networks:
+  #     - backend
+  #   healthcheck:
+  #     test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   # Uncomment the following lines to persist MongoDB data
+  #   # volumes:
+  #   #   - mongo_data:/data/db
+
+# Shared network for inter-service communication
+networks:
+  backend:
+    driver: bridge
+
+# Uncomment if you want to persist MongoDB data
+#volumes:
+#  mongo_data:

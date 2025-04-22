@@ -11,7 +11,7 @@ export const createProduct = async (req, res) => {
   console.log("Token from request:", token); // Debugging line
 
   const user = await validateToken(token);
-  if (!user) return res.status(401).json({ message: "Unauthorized" });
+  if (!user) return res.status(401).json({ message: "Unauthorized from product service" });
 
   const { name, price } = req.body;
 

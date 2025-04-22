@@ -30,7 +30,7 @@ app.use(cookieParser());
 // Enable CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allows only frontend running on localhost:5173
+    origin: ['http://localhost:4173', 'http://localhost:3001','http://localhost:5173'], // Allows only frontend running on localhost:5173
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
     allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
     credentials: true, // Allow credentials (cookies) to be sent
@@ -43,7 +43,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 
-app.get('/', (req, res) => res.send('Hello from the backend!'));
+app.get('/', (req, res) => res.send('Hello from the Auth Service!'));
 
 // MongoDB connection
 connectDB(); // Use the function from your db.js to connect to MongoDB
