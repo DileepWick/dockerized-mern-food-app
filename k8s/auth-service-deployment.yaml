@@ -41,6 +41,7 @@ spec:
     app: auth-service
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
-  type: ClusterIP  # This exposes the service within the cluster
+      port: 3000         # The port on which the service will be exposed inside the cluster
+      targetPort: 3000   # The port on the container itself
+      nodePort: 30002    # The external port accessible via Kubernetes node IP
+  type: NodePort

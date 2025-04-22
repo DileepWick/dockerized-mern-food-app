@@ -42,6 +42,8 @@ spec:
     app: product-service
   ports:
     - protocol: TCP
-      port: 3001
-      targetPort: 3001
-  type: ClusterIP
+      port: 3001         # The port on which the service will be exposed inside the cluster
+      targetPort: 3001   # The port on the container itself
+      nodePort: 30001    # The external port accessible via Kubernetes node IP
+  type: NodePort         # Exposes the service on a static port across all nodes
+
