@@ -55,6 +55,23 @@ export const getRestaurantById = async (req, res) => {
   }
 };
 
+export const getRestaurantByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+
+  try {
+    const restaurant = await Restaurant.findOne({ owner_id: ownerId });
+
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    res.status(200).json(restaurant);
+  } catch (err) {
+    console.error('Error fetching restaurant:', err);
+    res.status(500).json({ message: 'Failed to fetch restaurant' });
+  }
+};
+
 // Update restaurant (only if owned by the user)
 export const updateRestaurant = async (req, res) => {
   const token = req.cookies.token;
