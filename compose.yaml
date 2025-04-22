@@ -41,28 +41,9 @@ services:
       - auth_service
       - products_services
 
-  # MongoDB is required for Auth_Service and products_services (see db.js in both)
-  # mongo:
-  #   image: mongo:latest
-  #   restart: unless-stopped
-  #   ports:
-  #     - "27017:27017"  # Expose for local development
-  #   networks:
-  #     - backend
-  #   healthcheck:
-  #     test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   # Uncomment the following lines to persist MongoDB data
-  #   # volumes:
-  #   #   - mongo_data:/data/db
 
 # Shared network for inter-service communication
 networks:
   backend:
     driver: bridge
 
-# Uncomment if you want to persist MongoDB data
-#volumes:
-#  mongo_data:
