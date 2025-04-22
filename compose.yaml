@@ -1,6 +1,6 @@
 services:
   # The following services are built from Dockerfiles located in the respective directories
-  auth_service:
+  auth-service:
     build:
       context: ./auth_service
       dockerfile: ../auth_service/Dockerfile
@@ -12,7 +12,7 @@ services:
     networks:
       - backend
 
-  products_services:
+  products-service:
     build:
       context: ./products_services
       dockerfile: ../products_services/Dockerfile
@@ -22,7 +22,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - AUTH_SERVICE_URL=http://auth_service:3000  # 👈 Key line added
+      - AUTH_SERVICE_URL=http://auth-service:3000  # 👈 Key line added
     networks:
       - backend
 
@@ -38,8 +38,8 @@ services:
     networks:
       - backend
     depends_on:
-      - auth_service
-      - products_services
+      - auth-service
+      - products-service
 
 
 # Shared network for inter-service communication
