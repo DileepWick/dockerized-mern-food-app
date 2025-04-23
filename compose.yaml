@@ -1,0 +1,75 @@
+services:
+  restaurant-service:
+    build:
+      context: ./RestaurantService
+      dockerfile: ../RestaurantServiceDockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./RestaurantService/.env
+    ports:
+      - "3001:3000"  # Expose on 3001 to avoid port conflicts
+    networks:
+      - backend
+    depends_on:
+      - mongo
+    # Add more environment variables here if needed
+
+  js-auth_service:
+    build:
+      context: ./auth_service
+      dockerfile: ../auth_serviceDockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./auth_service/.env
+    ports:
+      - "3002:3000"  # Expose on 3002 to avoid port conflicts
+    networks:
+      - backend
+    depends_on:
+      - mongo
+
+  js-order_services:
+    build:
+      context: ./order_services
+      dockerfile: ../order_servicesDockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./order_services/.env
+    ports:
+      - "3003:3000"  # Expose on 3003 to avoid port conflicts
+    networks:
+      - backend
+    depends_on:
+      - mongo
+
+  js-products_services:
+    build:
+      context: ./products_services
+      dockerfile: ../products_servicesDockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./products_services/.env
+    ports:
+      - "3004:3000"  # Expose on 3004 to avoid port conflicts
+    networks:
+      - backend
+    depends_on:
+      - mongo
+
+  js-client:
+    build:
+      context: ./client
+      dockerfile: ../clientDockerfile
+    restart: unless-stopped
+    init: true
+    ports:
+      - "4173:4173"
+    networks:
+      - backend
+    # env_file: ./client/.env  # Uncomment if .env file exists
+    # The client will connect to backend services via the network
+
+
+networks:
+  backend:
+    driver: bridge

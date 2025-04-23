@@ -1,0 +1,64 @@
+# Node.js dependencies
+node_modules/
+
+# Logs and debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Environment and secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+
+# Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build outputs and development artifacts
+dist/
+build/
+out/
+tmp/
+temp/
+*.tmp
+
+# Test and coverage
+coverage/
+*.test.js
+test/
+tests/
+
+# Documentation
+README*
+*.md
+docs/
+
+# Local and config overrides
+.local/
+local/
+config.local.*
+*.local.yml
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+
+# Project-specific: Exclude lock files explicitly (do NOT ignore them)
+# (package-lock.json, yarn.lock, etc. are intentionally NOT ignored)
+
+# Docker files (if not needed in build context)
+Dockerfile*
+docker-compose*
