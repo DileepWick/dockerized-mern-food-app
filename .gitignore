@@ -3,3 +3,5 @@ product-service/node_modules
 client/node_modules
 order-service/node_modules
 restaurant-service/node_modules
+payment_service/node_modules
+delivery_service/node_modules
