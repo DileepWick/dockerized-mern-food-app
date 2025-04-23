@@ -1,4 +1,5 @@
-// tabs/overview/RestaurantStatusCard.jsx
+import { useState } from 'react';
+import { restaurantService } from '../../util/axiosInstances'; // adjust path as needed
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,7 +10,28 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-const RestaurantStatusCard = ({ restaurant }) => {
+const RestaurantStatusCard = ({ restaurant: initialRestaurant }) => {
+  const [restaurant, setRestaurant] = useState(initialRestaurant);
+  const [loading, setLoading] = useState(false);
+
+  const toggleRestaurantStatus = async () => {
+    setLoading(true);
+    try {
+      const response = await restaurantService.put(
+        `/restaurant/${restaurant._id}`,
+        {
+          is_active: !restaurant.is_active,
+        }
+      );
+
+      setRestaurant(response.data);
+    } catch (err) {
+      console.error('Failed to update status:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card className='shadow-sm'>
       <CardHeader className='flex flex-row items-center justify-between pb-2'>
@@ -36,7 +58,11 @@ const RestaurantStatusCard = ({ restaurant }) => {
             ? 'Your restaurant is currently visible to customers and accepting orders.'
             : 'Your restaurant is currently hidden from customers and not accepting orders.'}
         </div>
-        <Button variant={restaurant.is_active ? 'outline' : 'default'}>
+        <Button
+          variant={restaurant.is_active ? 'outline' : 'default'}
+          onClick={toggleRestaurantStatus}
+          disabled={loading}
+        >
           {restaurant.is_active ? 'Set as Closed' : 'Open Restaurant'}
         </Button>
       </CardContent>
