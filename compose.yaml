@@ -14,13 +14,13 @@ services:
       - mongo
     # Add more environment variables here if needed
 
-  js-auth_service:
+  auth_service:
     build:
-      context: ./auth_service
-      dockerfile: ../auth_serviceDockerfile
+      context: ./auth-service
+      dockerfile: ../auth-service/Dockerfile
     restart: unless-stopped
     init: true
-    env_file: ./auth_service/.env
+    env_file: ./auth-service/.env
     ports:
       - "3002:3000"  # Expose on 3002 to avoid port conflicts
     networks:
