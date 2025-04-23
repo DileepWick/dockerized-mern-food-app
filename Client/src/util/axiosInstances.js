@@ -12,7 +12,7 @@ const productsService = axios.create({
 });
 
 const restaurantService = axios.create({
-  baseURL: 'http://localhost:8156/api',
+  baseURL: 'http://restaurant-service:3001/api',
   withCredentials: true,
 });
 
