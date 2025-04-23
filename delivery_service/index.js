@@ -5,7 +5,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 
-import productRoutes from './routes/product_routes.js'; // Import your product routes
+
+import deliveryRoutes from './routes/deliveryRoutes.js'
+import driverStatusRoutes from './routes/driverStatusRoutes.js'
 
 
 // Load environment variables
@@ -39,7 +41,8 @@ app.get('/', (req, res) => res.send('Hello from Product Service! ✅'));
 connectDB(); // Use the function from your db.js to connect to MongoDB
 
 // Routes
-app.use('/api/products', productRoutes); // Use product routes
+app.use('/api/delivery', deliveryRoutes);
+app.use('api/status',driverStatusRoutes);
 
 // Start server
 app.listen(process.env.PORT, () => {
