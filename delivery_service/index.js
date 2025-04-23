@@ -35,7 +35,7 @@ app.use(
 app.use(express.json());
 
 
-app.get('/', (req, res) => res.send('Hello from Product Service! ✅'));
+app.get('/', (req, res) => res.send('Hello from Delivery Service! ✅'));
 
 // MongoDB connection
 connectDB(); // Use the function from your db.js to connect to MongoDB
