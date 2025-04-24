@@ -5,3 +5,5 @@ order-service/node_modules
 restaurant-service/node_modules
 payment-service/node_modules
 delivery-service/node_modules
+notification-service/node_modules
+user-management-service/node_modules
