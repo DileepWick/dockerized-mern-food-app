@@ -3,14 +3,14 @@ import { validateToken } from "../utils/validateUser.js";
 
 // Helper function to recalculate order total
 const recalculateOrderTotal = (items) => {
-  return items.reduce((total, item) => total + item.total_price, 0);
+  return items.reduce((total, item) => total + item.price_per_item * item.quantity, 0);
 };
 
 export const createOrder = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
-  if (user.role !== 'CUSTOMER') return res.status(403).json({ message: "Only customers can place orders" });
+  if (user.role !== 'user') return res.status(403).json({ message: "Only customers can place orders" });
 
   try {
     const {
@@ -46,7 +46,6 @@ export const createOrder = async (req, res) => {
  * GET /api/orders/:orderId
  * Access: Order owner, Admin, or Restaurant
  */
-
 export const getOrder = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
@@ -74,7 +73,6 @@ export const getOrder = async (req, res) => {
  * PATCH /api/orders/:orderId/status
  * Access: Role-based permissions
  */
-
 export const updateOrderStatus = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
@@ -124,7 +122,6 @@ export const updateOrderStatus = async (req, res) => {
  * GET /api/orders/user
  * Access: Any authenticated user
  */
-
 export const getOrdersByUser = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
@@ -144,7 +141,6 @@ export const getOrdersByUser = async (req, res) => {
  * GET /api/orders/restaurant
  * Access: Restaurant users only
  */
-
 export const getOrdersByRestaurant = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
