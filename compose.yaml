@@ -39,30 +39,6 @@ services:
     networks:
       - backend
 
-  js-order_services:
-    build:
-      context: ./order_services
-      dockerfile: ../order_servicesDockerfile
-    restart: unless-stopped
-    init: true
-    env_file: ./order_services/.env
-    ports:
-      - "3003:3000"  # Expose on 3003 to avoid port conflicts
-    networks:
-      - backend
-
-  js-products_services:
-    build:
-      context: ./products_services
-      dockerfile: ../products_servicesDockerfile
-    restart: unless-stopped
-    init: true
-    env_file: ./products_services/.env
-    ports:
-      - "3004:3000"  # Expose on 3004 to avoid port conflicts
-    networks:
-      - backend
-
 
 
 networks:
