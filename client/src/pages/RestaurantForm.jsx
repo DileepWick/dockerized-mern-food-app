@@ -31,13 +31,9 @@ export default function RestaurantForm({ className, ...props }) {
         is_active: isActive,
       };
 
-      const response = await restaurantService.post(
-        '/restaurant',
-        restaurantData,
-        {
-          withCredentials: true, // Send cookies (token) to backend
-        }
-      );
+      const response = await restaurantService.post('/', restaurantData, {
+        withCredentials: true, // Send cookies (token) to backend
+      });
 
       if (response.status === 201) {
         // Redirect to the dashboard after successful creation

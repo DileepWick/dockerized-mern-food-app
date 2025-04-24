@@ -1,8 +1,8 @@
 // gateway/server.js
-import express from "express";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import dotenv from "dotenv";
-import cors from "cors";
+import express from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -12,79 +12,88 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:4173",
-      "http://localhost:3001",
-      "http://localhost:30001",
-      "http://localhost:30080",
-      "http://localhost:5173",
-      "http://localhost:3007",
+      'http://localhost:4173',
+      'http://localhost:3001',
+      'http://localhost:30001',
+      'http://localhost:30080',
+      'http://localhost:5173',
+      'http://localhost:3007',
     ], // Allows only frontend running on localhost:5173 and localhost:4173
-    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
     credentials: true, // Allow credentials (cookies) to be sent
   })
 );
 
 // Proxy rules for each service
 app.use(
-  "/api/auth",
+  '/api/auth',
   createProxyMiddleware({
-    target: "http://localhost:3000/api/auth",
+    target: 'http://localhost:3000/api/auth',
     changeOrigin: true,
   })
 );
 
 app.use(
-  "/api/delivery",
+  '/api/delivery',
   createProxyMiddleware({
-    target: "http://localhost:3001/api/delivery",
+    target: 'http://localhost:3001/api/delivery',
     changeOrigin: true,
   })
 );
 
 app.use(
-  "/api/notification",
+  '/api/notification',
   createProxyMiddleware({
-    target: "http://localhost:3002/api/notification",
+    target: 'http://localhost:3002/api/notification',
     changeOrigin: true,
   })
 );
 
 app.use(
-  "/api/order",
+  '/api/order',
   createProxyMiddleware({
-    target: "http://localhost:3003/api/order",
+    target: 'http://localhost:3003/api/order',
     changeOrigin: true,
   })
 );
 
 app.use(
-  "/api/payment",
+  '/api/payment',
   createProxyMiddleware({
-    target: "http://localhost:3004/api/payment",
+    target: 'http://localhost:3004/api/payment',
     changeOrigin: true,
   })
 );
 
 app.use(
-  "/api/restaurant",
+  '/api/restaurant',
   createProxyMiddleware({
-    target: "http://localhost:3005/api/restaurant",
+    target: 'http://localhost:3005/api',
     changeOrigin: true,
   })
 );
 
 app.use(
-  "/api/users",
+  '/api/users',
   createProxyMiddleware({
-    target: "http://localhost:3006/api/users",
+    target: 'http://localhost:3006/api/users',
+    changeOrigin: true,
+  })
+);
+
+app.use(
+  '/api/cloudinary',
+  createProxyMiddleware({
+    target: 'http://localhost:3005/api/cloudinary',
+    pathRewrite: { '^/api/cloudinary': '' },
     changeOrigin: true,
   })
 );
 
 // Root health check route
-app.get("/", (req, res) => {
-  res.send("API Gateway is running ✅");
+app.get('/', (req, res) => {
+  res.send('API Gateway is running ✅');
 });
 
 // Start server
