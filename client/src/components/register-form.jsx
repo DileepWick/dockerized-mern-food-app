@@ -95,7 +95,7 @@ export function RegisterForm({ className, ...props }) {
     };
 
     try {
-      const response = await authService.post('/auth/register', userData);
+      const response = await authService.post('/register', userData);
 
       if (response.status === 201) {
         // Redirect to login page

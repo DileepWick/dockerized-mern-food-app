@@ -1,38 +1,42 @@
+// client/src/api/services.js
 import axios from "axios";
 
-// Create an instance of axios for the authentication service
+// Base URL of the API Gateway
+const GATEWAY_BASE_URL = "http://localhost:3007/api";
+
+// Create axios instances routed through API Gateway
 const authService = axios.create({
-  baseURL: "http://localhost:3000/api", // Change this to your backend URL
-  withCredentials: true, // Ensures cookies (JWT) are sent with requests
+  baseURL: `${GATEWAY_BASE_URL}/auth`,
+  withCredentials: true,
 });
 
 const deliveryService = axios.create({
-  baseURL: "http://localhost:3001/api",
+  baseURL: `${GATEWAY_BASE_URL}/delivery`,
   withCredentials: true,
 });
 
 const notificationService = axios.create({
-  baseURL: "http://localhost:3002/api",
+  baseURL: `${GATEWAY_BASE_URL}/notification`,
   withCredentials: true,
 });
 
 const orderService = axios.create({
-  baseURL: "http://localhost:3003/api",
+  baseURL: `${GATEWAY_BASE_URL}/order`,
   withCredentials: true,
 });
 
 const paymentService = axios.create({
-  baseURL: "http://localhost:3004/api",
+  baseURL: `${GATEWAY_BASE_URL}/payment`,
   withCredentials: true,
 });
 
 const restaurantService = axios.create({
-  baseURL: "http://localhost:3005/api",
+  baseURL: `${GATEWAY_BASE_URL}/restaurant`,
   withCredentials: true,
 });
 
 const userManagementService = axios.create({
-  baseURL: "http://localhost:3006/api",
+  baseURL: `${GATEWAY_BASE_URL}/users`,
   withCredentials: true,
 });
 

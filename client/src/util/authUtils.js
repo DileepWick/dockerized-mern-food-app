@@ -3,7 +3,7 @@ import { authService } from './axiosInstances.js'; // Import centralized API ins
 // ✅ Get logged-in user
 export const getLoggedInUser = async () => {
   try {
-    const response = await authService.get('/auth/me');
+    const response = await authService.get('/me');
     return response.data; // Return user details
   } catch (error) {
     console.error(
@@ -23,7 +23,7 @@ export const isAuthorized = (user, allowedRoles) => {
 // ✅ Logout function
 export const logoutUser = async () => {
   try {
-    await authService.post('/auth/logout');
+    await authService.post('/logout');
     Navigate('/login'); // Redirect to login page after logout
 
     return true; // Logout successful
@@ -40,7 +40,7 @@ export const logoutUser = async () => {
 export const checkTokenValidity = async () => {
   try {
     const response = await authService.post(
-      '/auth/validate-token',
+      '/validate-token',
       {},
       { withCredentials: true }
     );

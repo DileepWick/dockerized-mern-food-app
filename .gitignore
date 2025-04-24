@@ -7,3 +7,4 @@ payment-service/node_modules
 delivery-service/node_modules
 notification-service/node_modules
 user-management-service/node_modules
+api-gateway-service/node_modules
