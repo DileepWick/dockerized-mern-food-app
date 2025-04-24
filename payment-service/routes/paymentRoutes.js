@@ -1,9 +1,11 @@
+// File: routes/paymentRoutes.js
 import express from 'express';
 import { 
   createPaymentIntent, 
   getPaymentById, 
   getCustomerPayments, 
   getOrderPayments, 
+  updatePaymentStatus,
   processRefund 
 } from '../controllers/paymentController.js';
 
@@ -20,6 +22,9 @@ router.get('/customer/:customer_id', getCustomerPayments);
 
 // Get all payments for an order
 router.get('/order/:order_id', getOrderPayments);
+
+// Update payment status manually (since we're not using webhooks)
+router.put('/:payment_id/status', updatePaymentStatus);
 
 // Process refund
 router.post('/refund/:payment_id', processRefund);

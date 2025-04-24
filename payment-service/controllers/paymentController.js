@@ -32,9 +32,12 @@ export const createPaymentIntent = async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe requires amount in cents
       currency: 'usd',
+      automatic_payment_methods: {
+        enabled: true
+      },
       metadata: {
-        order_id,
-        customer_id
+        order_id: order_id.toString(),
+        customer_id: customer_id.toString()
       }
     });
 
@@ -54,7 +57,7 @@ export const createPaymentIntent = async (req, res) => {
     res.status(200).json({
       success: true,
       clientSecret: paymentIntent.client_secret,
-      payment_id: payment._id // Use MongoDB's generated _id
+      payment_id: payment._id
     });
   } catch (error) {
     console.error('Error creating payment intent:', error);
@@ -161,6 +164,54 @@ export const getOrderPayments = async (req, res) => {
   }
 };
 
+// Manually update payment status (since we're not using webhooks)
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const { payment_id } = req.params;
+    const { status } = req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(payment_id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment_id format'
+      });
+    }
+    
+    if (!status || !['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status value'
+      });
+    }
+    
+    const payment = await Payment.findByIdAndUpdate(
+      payment_id,
+      { status, ...(status === 'SUCCESS' ? { payment_time: new Date() } : {}) },
+      { new: true }
+    );
+    
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Payment status updated to ${status}`,
+      payment
+    });
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating payment status',
+      error: error.message
+    });
+  }
+};
+
 // Process refund
 export const processRefund = async (req, res) => {
   try {
@@ -189,21 +240,30 @@ export const processRefund = async (req, res) => {
       });
     }
 
-    // Process refund with Stripe
-    const refund = await stripe.refunds.create({
-      payment_intent: payment.transaction_id
-    });
+    try {
+      // Process refund with Stripe
+      const refund = await stripe.refunds.create({
+        payment_intent: payment.transaction_id
+      });
 
-    // Update payment status in database
-    payment.status = 'REFUNDED';
-    payment.metadata = { ...payment.metadata, refund_id: refund.id };
-    await payment.save();
+      // Update payment status in database
+      payment.status = 'REFUNDED';
+      payment.metadata = { ...payment.metadata, refund_id: refund.id };
+      await payment.save();
 
-    res.status(200).json({
-      success: true,
-      refund,
-      payment
-    });
+      res.status(200).json({
+        success: true,
+        refund,
+        payment
+      });
+    } catch (stripeError) {
+      console.error('Stripe refund error:', stripeError);
+      res.status(400).json({
+        success: false,
+        message: 'Error processing refund with Stripe',
+        error: stripeError.message
+      });
+    }
   } catch (error) {
     console.error('Error processing refund:', error);
     res.status(500).json({

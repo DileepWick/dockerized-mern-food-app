@@ -5,7 +5,7 @@ import connectDB from './config/db.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import paymentRoutes from './routes/paymentRoutes.js';
-import webhookRoutes from './routes/webhookRoutes.js';
+
 
 // Load environment variables
 dotenv.config();
@@ -26,8 +26,6 @@ app.use(
   })
 );
 
-// Special handling for Stripe webhooks (raw body)
-app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), webhookRoutes);
 
 // Middleware for JSON parsing
 app.use(express.json());

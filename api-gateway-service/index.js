@@ -61,7 +61,7 @@ app.use(
 app.use(
   "/api/payment",
   createProxyMiddleware({
-    target: "http://localhost:3004/api/payment",
+    target: "http://localhost:3004/api/payments",
     changeOrigin: true,
   })
 );

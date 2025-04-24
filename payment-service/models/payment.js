@@ -1,12 +1,8 @@
-// File: models/Payment.js
+// File: models/payment.js
 import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema({
-  payment_id: {
-    type: String,
-    required: true,
-    unique: true
-  },
+  // MongoDB automatically creates _id field
   order_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
