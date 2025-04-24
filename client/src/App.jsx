@@ -7,10 +7,12 @@ import {
 import { useEffect, useState } from 'react';
 import { getLoggedInUser } from './util/authUtils';
 
-import LoginPage from './app/login/page';
-import RegisterPage from './app/register/register-page';
+import LoginPage from '../src/app/login/page';
+import RegisterPage from '../src/app/register/register-page';
 import Home from './pages/Home';
 import ProductForm from './pages/Form';
+import RestaurantForm from './pages/RestaurantForm';
+import SellerDashboard from './pages/sellerDashboard';
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -39,6 +41,9 @@ function App() {
         {/* Public Route */}
         <Route path='/login' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
+        <Route path='/register' element={<RegisterPage />} />
+        <Route path='/restaurantForm' element={<RestaurantForm />} />
+        <Route path='/sellerDashboard' element={<SellerDashboard />} />
 
         {/* Protected Route */}
         <Route
