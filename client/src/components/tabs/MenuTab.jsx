@@ -94,7 +94,7 @@ const MenuTab = ({ restaurantId }) => {
       </CardHeader>
       <CardContent className='pt-6'>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className='mb-6'>
+          <TabsList className='mb-6 hidden'>
             <TabsTrigger value='list'>Menu Items</TabsTrigger>
             <TabsTrigger value='add'>Add New Item</TabsTrigger>
           </TabsList>
