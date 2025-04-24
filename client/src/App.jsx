@@ -9,8 +9,7 @@ import { getLoggedInUser } from './util/authUtils';
 
 import LoginPage from '../src/app/login/page';
 import RegisterPage from '../src/app/register/register-page';
-import Home from './pages/Home';
-import ProductForm from './pages/Form';
+import Home from './pages/Home';;
 import RestaurantForm from './pages/RestaurantForm';
 import SellerDashboard from './pages/sellerDashboard';
 
@@ -47,18 +46,10 @@ function App() {
 
         {/* Protected Route */}
         <Route
-          path='/dasda'
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path='/'
           element={
             <ProtectedRoute>
-              <ProductForm />
+              <Home />
             </ProtectedRoute>
           }
         />

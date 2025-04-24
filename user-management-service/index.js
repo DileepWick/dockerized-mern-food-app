@@ -28,7 +28,7 @@ app.use(
 // Middleware
 app.use(express.json());
 
-app.get('/', (req, res) => res.send('Hello from Order Service! ✅'));
+app.get('/', (req, res) => res.send('Hello from User Management Service! ✅'));
 
 // MongoDB connection
 connectDB();

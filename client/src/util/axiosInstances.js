@@ -6,14 +6,9 @@ const authService = axios.create({
   withCredentials: true, // Ensures cookies (JWT) are sent with requests
 });
 
-const productsService = axios.create({
-  baseURL: 'http://localhost:8099/api',
-  withCredentials: true,
-});
-
 const restaurantService = axios.create({
-  baseURL: 'http://localhost:8156/api',
+  baseURL: 'http://localhost:3005/api',
   withCredentials: true,
 });
 
-export { authService, productsService, restaurantService };
+export { authService, restaurantService };
