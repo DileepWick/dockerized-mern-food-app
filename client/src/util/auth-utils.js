@@ -1,4 +1,4 @@
-import { authService } from './axiosInstances.js'; // Import centralized API instance
+import { authService } from './service-gateways.js'; // Import centralized API instance
 
 // ✅ Get logged-in user
 export const getLoggedInUser = async () => {

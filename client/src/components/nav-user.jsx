@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {authService} from "../util/axiosInstances"; // Axios utility to interact with backend API
+import {authService} from "../util/service-gateways"; // Axios utility to interact with backend API
 
 export function NavUser() {
   const [user, setUser] = useState(null);

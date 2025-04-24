@@ -5,7 +5,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getLoggedInUser } from './util/authUtils';
+import { getLoggedInUser } from './util/auth-utils';
 
 import LoginPage from '../src/app/login/page';
 import RegisterPage from '../src/app/register/register-page';

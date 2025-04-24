@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/card';
 import { Loader2, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getLoggedInUser, isAuthorized } from '../util/authUtils';
-import { restaurantService } from '../util/axiosInstances';
+import { getLoggedInUser, isAuthorized } from '../util/auth-utils';
+import { restaurantService } from '../util/service-gateways';
 
 const SellerDashboard = () => {
   const [user, setUser] = useState(null);

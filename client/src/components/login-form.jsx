@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {authService} from '../util/axiosInstances'; // Import centralized API instance
+import {authService} from '../util/service-gateways'; // Import centralized API instance
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

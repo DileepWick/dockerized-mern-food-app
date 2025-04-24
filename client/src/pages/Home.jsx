@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getLoggedInUser} from "../util/authUtils";
+import { getLoggedInUser} from "../util/auth-utils";
 
 const Home = () => {
   const [user, setUser] = useState(null);
