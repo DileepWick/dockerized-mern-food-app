@@ -19,7 +19,7 @@ const menuItemSchema = new mongoose.Schema(
       type: String,
     },
     price: {
-      type: mongoose.Schema.Types.Decimal128,
+      type: Number,
       required: true,
     },
     image_url: {
