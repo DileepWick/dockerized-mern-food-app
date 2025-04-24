@@ -43,7 +43,7 @@ function App() {
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/restaurantForm' element={<RestaurantForm />} />
         <Route path='/sellerDashboard' element={<SellerDashboard />} />
-
+        
         {/* Protected Route */}
         <Route
           path='/'
