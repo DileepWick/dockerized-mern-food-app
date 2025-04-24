@@ -8,8 +8,8 @@ import SettingsTab from '../tabs/SettingsTab';
 const DashboardTabs = ({ restaurant, mockOrders }) => {
   return (
     <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-      <Tabs defaultValue='overview' className='w-full'>
-        <TabsList className='mb-6'>
+      <Tabs defaultValue='overview' className='!h-20 w-full'>
+        <TabsList className='mb-6 w-full'>
           <TabsTrigger value='overview'>Overview</TabsTrigger>
           <TabsTrigger value='orders'>Orders</TabsTrigger>
           <TabsTrigger value='menu'>Menu</TabsTrigger>
@@ -25,7 +25,7 @@ const DashboardTabs = ({ restaurant, mockOrders }) => {
         </TabsContent>
 
         <TabsContent value='menu'>
-          <MenuTab />
+          <MenuTab restaurantId={restaurant._id} />
         </TabsContent>
 
         <TabsContent value='settings'>

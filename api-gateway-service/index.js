@@ -82,6 +82,15 @@ app.use(
   })
 );
 
+app.use(
+  '/api/cloudinary',
+  createProxyMiddleware({
+    target: 'http://localhost:3005/api/cloudinary',
+    pathRewrite: { '^/api/cloudinary': '' },
+    changeOrigin: true,
+  })
+);
+
 // Root health check route
 app.get('/', (req, res) => {
   res.send('API Gateway is running ✅');
