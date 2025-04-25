@@ -2,9 +2,15 @@
 import mongoose from 'mongoose';
 import stripe from '../config/stripe.js';
 import Payment from '../models/payment.js';
+import { validateToken } from '../utils/validateUser.js';
 
 // Create a payment intent with Stripe
 export const createPaymentIntent = async (req, res) => {
+  const token = req.cookies.token;
+  const user = await validateToken(token);
+  if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+
   try {
     const { amount, order_id, customer_id } = req.body;
 

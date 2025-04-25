@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { createPaymentIntent, updatePaymentStatus } from '../util/payment-utils';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 const PaymentForm = () => {
   const stripe = useStripe();
@@ -134,96 +144,143 @@ const PaymentForm = () => {
 
   if (success) {
     return (
-      <div className="payment-success">
-        <h2>Payment Successful!</h2>
-        <p>Thank you for your payment. Your payment ID is: {paymentId}</p>
-        <button
-          onClick={() => {
-            setSuccess(false);
-            setPaymentId(null);
-            setFormData({ amount: '', order_id: '', customer_id: '' });
-          }}
-          className="btn btn-primary"
-        >
-          Make Another Payment
-        </button>
+      <div className="container mx-auto px-4 py-6">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader className="bg-green-50">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="text-green-600 h-6 w-6" />
+              <CardTitle>Payment Successful!</CardTitle>
+            </div>
+            <CardDescription>Your transaction has been completed</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Payment ID</p>
+                <p className="mt-1 text-sm font-mono">{paymentId}</p>
+              </div>
+              <p>Thank you for your payment. Your transaction was successful.</p>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button
+              onClick={() => {
+                setSuccess(false);
+                setPaymentId(null);
+                setFormData({ amount: '', order_id: '', customer_id: '' });
+              }}
+            >
+              Make Another Payment
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     );
   }
   
   return (
-    <div className="payment-form-container">
-      <h2>Payment Form</h2>
-      
-      {error && (
-        <div className="error-message alert alert-danger">
-          <strong>Error:</strong> {error}
-          {error.includes('duplicate key error') && (
-            <p>There was an issue with your payment ID. Please try again.</p>
+    <div className="container mx-auto px-4 py-6">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Payment Form</CardTitle>
+          <CardDescription>Enter your payment details</CardDescription>
+        </CardHeader>
+        
+        <CardContent className="pt-6">
+          {error && (
+            <div className="bg-red-50 p-4 rounded-md mb-6 border border-red-200">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="text-red-600 h-5 w-5 mt-0.5" />
+                <div>
+                  <p className="text-red-600 font-medium">Error</p>
+                  <p className="text-red-600">{error}</p>
+                  {error.includes('duplicate key error') && (
+                    <p className="text-red-600 mt-2">There was an issue with your payment ID. Please try again.</p>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-group mb-3">
-          <label htmlFor="amount">Amount ($)</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleInputChange}
-            placeholder="Enter amount"
-            step="0.01"
-            min="0.50"
-            required
-            className="form-control"
-          />
-        </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="amount" className="text-sm font-medium text-gray-500">
+                Amount ($)
+              </label>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                value={formData.amount}
+                onChange={handleInputChange}
+                placeholder="Enter amount"
+                step="0.01"
+                min="0.50"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="order_id" className="text-sm font-medium text-gray-500">
+                Order ID
+              </label>
+              <input
+                type="text"
+                id="order_id"
+                name="order_id"
+                value={formData.order_id}
+                onChange={handleInputChange}
+                placeholder="Enter order ID"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="customer_id" className="text-sm font-medium text-gray-500">
+                Customer ID
+              </label>
+              <input
+                type="text"
+                id="customer_id"
+                name="customer_id"
+                value={formData.customer_id}
+                onChange={handleInputChange}
+                placeholder="Enter customer ID"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="card-element" className="text-sm font-medium text-gray-500">
+                Credit or debit card
+              </label>
+              <div className="p-3 border border-gray-300 rounded-md bg-white">
+                <CardElement id="card-element" options={cardElementOptions} />
+              </div>
+            </div>
+          </form>
+        </CardContent>
         
-        <div className="form-group mb-3">
-          <label htmlFor="order_id">Order ID</label>
-          <input
-            type="text"
-            id="order_id"
-            name="order_id"
-            value={formData.order_id}
-            onChange={handleInputChange}
-            placeholder="Enter order ID"
-            required
-            className="form-control"
-          />
-        </div>
-        
-        <div className="form-group mb-3">
-          <label htmlFor="customer_id">Customer ID</label>
-          <input
-            type="text"
-            id="customer_id"
-            name="customer_id"
-            value={formData.customer_id}
-            onChange={handleInputChange}
-            placeholder="Enter customer ID"
-            required
-            className="form-control"
-          />
-        </div>
-        
-        <div className="form-group mb-4">
-          <label htmlFor="card-element">Credit or debit card</label>
-          <div className="card-element-container p-3 border rounded">
-            <CardElement id="card-element" options={cardElementOptions} />
-          </div>
-        </div>
-        
-        <button 
-          type="submit" 
-          disabled={loading || !stripe}
-          className="btn btn-primary w-100"
-        >
-          {loading ? 'Processing...' : 'Pay Now'}
-        </button>
-      </form>
+        <CardFooter>
+          <Button 
+            onClick={handleSubmit}
+            disabled={loading || !stripe}
+            className="w-full"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Processing...</span>
+              </div>
+            ) : (
+              'Pay Now'
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 // Create a new payment intent
-router.post('/create-payment-intent', createPaymentIntent);
+router.post('/create-payment-intent', createPaymentIntent);   //use this 
 
 // Get payment by ID
 router.get('/:payment_id', getPaymentById);
@@ -23,8 +23,8 @@ router.get('/customer/:customer_id', getCustomerPayments);
 // Get all payments for an order
 router.get('/order/:order_id', getOrderPayments);
 
-// Update payment status manually (since we're not using webhooks)
-router.put('/:payment_id/status', updatePaymentStatus);
+// Update payment status manually
+router.put('/:payment_id/status', updatePaymentStatus);    // and this
 
 // Process refund
 router.post('/refund/:payment_id', processRefund);
