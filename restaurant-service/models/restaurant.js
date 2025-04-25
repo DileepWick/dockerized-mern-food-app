@@ -22,6 +22,10 @@ const restaurantSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    cover_image: {
+      type: String,
+      default: '',
+    },
   },
   { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );

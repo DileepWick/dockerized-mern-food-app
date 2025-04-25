@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ImagePlus } from 'lucide-react';
 
 export default function RestaurantForm({ className, ...props }) {
   const [name, setName] = useState('');
@@ -16,7 +16,50 @@ export default function RestaurantForm({ className, ...props }) {
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [coverImage, setCoverImage] = useState('');
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
+
+  // Handle image upload
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      // Get Cloudinary signature from the backend
+      const res = await restaurantService.get(
+        'restaurant/cloudinary/signature'
+      );
+      const { timestamp, signature, apiKey, cloudName, folder } = res.data;
+
+      // Create form data for Cloudinary upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', folder);
+
+      // Upload image to Cloudinary
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: 'POST', body: formData }
+      );
+
+      const data = await uploadRes.json();
+      if (!data.secure_url) throw new Error('Image upload failed');
+
+      setCoverImage(data.secure_url);
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      setError('Image upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   // Handle form submission
   const handleCreateRestaurant = async (e) => {
@@ -29,6 +72,7 @@ export default function RestaurantForm({ className, ...props }) {
         name,
         description,
         is_active: isActive,
+        cover_image: coverImage, // Add the cover image URL
       };
 
       const response = await restaurantService.post(
@@ -124,6 +168,56 @@ export default function RestaurantForm({ className, ...props }) {
                     className='min-h-24 w-full'
                   />
                 </div>
+
+                {/* Add Cover Image Upload Section */}
+                <div className='grid gap-2'>
+                  <Label htmlFor='coverImage'>Cover Image</Label>
+                  <div className='flex items-center gap-4'>
+                    <div className='relative'>
+                      <Input
+                        id='coverImage'
+                        type='file'
+                        accept='image/*'
+                        onChange={handleImageUpload}
+                        className='absolute inset-0 opacity-0 cursor-pointer z-10'
+                        disabled={uploading}
+                      />
+                      <Button
+                        type='button'
+                        variant='outline'
+                        className='relative flex items-center gap-2'
+                        disabled={uploading}
+                      >
+                        {uploading ? (
+                          <>
+                            <Loader2 className='h-4 w-4 animate-spin' />
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ImagePlus className='h-4 w-4' />
+                            <span>Upload Image</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
+                    {coverImage && (
+                      <div className='relative'>
+                        <img
+                          src={coverImage}
+                          alt='Restaurant cover preview'
+                          className='w-24 h-24 object-cover rounded-md border'
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p className='text-sm text-muted-foreground mt-1'>
+                    Upload an attractive image of your restaurant (recommended
+                    size: 1280x720)
+                  </p>
+                </div>
+
                 <div className='flex items-center space-x-2 pt-2'>
                   <Switch
                     id='is-active'
@@ -140,7 +234,11 @@ export default function RestaurantForm({ className, ...props }) {
                 </div>
               )}
 
-              <Button type='submit' className='w-full h-11' disabled={loading}>
+              <Button
+                type='submit'
+                className='w-full h-11'
+                disabled={loading || uploading}
+              >
                 {loading ? (
                   <span className='flex items-center gap-2'>
                     <Loader2 className='h-4 w-4 animate-spin' />
