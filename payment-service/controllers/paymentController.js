@@ -15,11 +15,11 @@ export const createPaymentIntent = async (req, res) => {
       });
     }
 
-    // Convert string IDs to ObjectIds
+    // Convert string IDs to ObjectIds using proper method
     const orderObjectId = mongoose.Types.ObjectId.isValid(order_id) ? 
-                          new mongoose.Types.ObjectId(order_id) : null;
+                          new mongoose.Types.ObjectId(order_id.toString()) : null;
     const customerObjectId = mongoose.Types.ObjectId.isValid(customer_id) ? 
-                             new mongoose.Types.ObjectId(customer_id) : null;
+                             new mongoose.Types.ObjectId(customer_id.toString()) : null;
 
     if (!orderObjectId || !customerObjectId) {
       return res.status(400).json({
@@ -41,9 +41,12 @@ export const createPaymentIntent = async (req, res) => {
       }
     });
 
+    // Generate a unique payment_id
+    const uniquePaymentId = new mongoose.Types.ObjectId().toString();
+
     // Create record in our database
     const payment = new Payment({
-      // MongoDB will automatically generate _id
+      payment_id: uniquePaymentId, // Explicitly set a unique payment_id
       order_id: orderObjectId,
       customer_id: customerObjectId,
       amount,
@@ -57,7 +60,7 @@ export const createPaymentIntent = async (req, res) => {
     res.status(200).json({
       success: true,
       clientSecret: paymentIntent.client_secret,
-      payment_id: payment._id
+      payment_id: payment.payment_id // Use the payment_id field instead of _id
     });
   } catch (error) {
     console.error('Error creating payment intent:', error);
@@ -74,19 +77,13 @@ export const getPaymentById = async (req, res) => {
   try {
     const { payment_id } = req.params;
     
-    if (!mongoose.Types.ObjectId.isValid(payment_id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid payment_id format'
-      });
-    }
-    
-    const payment = await Payment.findById(payment_id);
+    // Find by payment_id string field, not MongoDB _id
+    const payment = await Payment.findOne({ payment_id });
     
     if (!payment) {
       return res.status(404).json({
         success: false,
-        message: 'Payment not found'
+        message: 'Payment id not found'
       });
     }
 
@@ -116,7 +113,7 @@ export const getCustomerPayments = async (req, res) => {
       });
     }
 
-    const customerObjectId = new mongoose.Types.ObjectId(customer_id);
+    const customerObjectId = new mongoose.Types.ObjectId(customer_id.toString());
     const payments = await Payment.find({ customer_id: customerObjectId });
     
     res.status(200).json({
@@ -146,7 +143,7 @@ export const getOrderPayments = async (req, res) => {
       });
     }
 
-    const orderObjectId = new mongoose.Types.ObjectId(order_id);
+    const orderObjectId = new mongoose.Types.ObjectId(order_id.toString());
     const payments = await Payment.find({ order_id: orderObjectId });
     
     res.status(200).json({
@@ -170,13 +167,6 @@ export const updatePaymentStatus = async (req, res) => {
     const { payment_id } = req.params;
     const { status } = req.body;
     
-    if (!mongoose.Types.ObjectId.isValid(payment_id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid payment_id format'
-      });
-    }
-    
     if (!status || !['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'].includes(status)) {
       return res.status(400).json({
         success: false,
@@ -184,8 +174,9 @@ export const updatePaymentStatus = async (req, res) => {
       });
     }
     
-    const payment = await Payment.findByIdAndUpdate(
-      payment_id,
+    // Find by payment_id string field, not MongoDB _id
+    const payment = await Payment.findOneAndUpdate(
+      { payment_id },
       { status, ...(status === 'SUCCESS' ? { payment_time: new Date() } : {}) },
       { new: true }
     );
@@ -217,14 +208,8 @@ export const processRefund = async (req, res) => {
   try {
     const { payment_id } = req.params;
     
-    if (!mongoose.Types.ObjectId.isValid(payment_id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid payment_id format'
-      });
-    }
-    
-    const payment = await Payment.findById(payment_id);
+    // Find by payment_id string field, not MongoDB _id
+    const payment = await Payment.findOne({ payment_id });
     
     if (!payment) {
       return res.status(404).json({

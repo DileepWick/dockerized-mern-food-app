@@ -34,13 +34,17 @@ const PaymentForm = () => {
       const response = await createPaymentIntent(formData);
       
       if (response.success) {
+        console.log('Payment intent created with ID:', response.payment_id);
         setPaymentId(response.payment_id);
-        return response.clientSecret;
+        return { clientSecret: response.clientSecret, paymentId: response.payment_id };
       } else {
+        // Show the specific error message from the API
         throw new Error(response.message || 'Failed to create payment intent');
       }
     } catch (err) {
-      setError(err.message || 'An error occurred while creating payment intent');
+      // Include any specific error information from the response
+      const errorMessage = err.response?.data?.error || err.message || 'An error occurred while creating payment intent';
+      setError(errorMessage);
       return null;
     } finally {
       setLoading(false);
@@ -48,7 +52,7 @@ const PaymentForm = () => {
   };
   
   // Step 2: Confirm payment with Stripe
-  const confirmPayment = async (clientSecret) => {
+  const confirmPayment = async (clientSecret, currentPaymentId) => {
     try {
       if (!stripe || !elements) {
         throw new Error('Stripe has not loaded yet');
@@ -68,7 +72,7 @@ const PaymentForm = () => {
       
       if (paymentIntent.status === 'succeeded') {
         // Step 3: Update payment status in our backend
-        await handleUpdatePaymentStatus('SUCCESS');
+        await handleUpdatePaymentStatus(currentPaymentId, 'SUCCESS');
         setSuccess(true);
       } else {
         throw new Error('Payment failed');
@@ -76,16 +80,20 @@ const PaymentForm = () => {
     } catch (err) {
       setError(err.message || 'Payment confirmation failed');
       // Update payment status to FAILED if it failed
-      if (paymentId) {
-        await handleUpdatePaymentStatus('FAILED');
+      if (currentPaymentId) {
+        await handleUpdatePaymentStatus(currentPaymentId, 'FAILED');
       }
     }
   };
   
   // Update payment status in our database
-  const handleUpdatePaymentStatus = async (status) => {
+  const handleUpdatePaymentStatus = async (currentPaymentId, status) => {
     try {
-      await updatePaymentStatus(paymentId, status);
+      if (!currentPaymentId) {
+        console.warn('Attempted to update payment status without a payment ID');
+        return;
+      }
+      await updatePaymentStatus(currentPaymentId, status);
     } catch (err) {
       console.error('Error updating payment status:', err);
     }
@@ -101,11 +109,11 @@ const PaymentForm = () => {
     }
     
     // Create payment intent first
-    const clientSecret = await handleCreatePaymentIntent();
+    const result = await handleCreatePaymentIntent();
     
-    if (clientSecret) {
+    if (result && result.clientSecret && result.paymentId) {
       // Then confirm payment with Stripe
-      await confirmPayment(clientSecret);
+      await confirmPayment(result.clientSecret, result.paymentId);
     }
   };
   
@@ -132,6 +140,7 @@ const PaymentForm = () => {
         <button
           onClick={() => {
             setSuccess(false);
+            setPaymentId(null);
             setFormData({ amount: '', order_id: '', customer_id: '' });
           }}
           className="btn btn-primary"
@@ -146,7 +155,14 @@ const PaymentForm = () => {
     <div className="payment-form-container">
       <h2>Payment Form</h2>
       
-      {error && <div className="error-message alert alert-danger">{error}</div>}
+      {error && (
+        <div className="error-message alert alert-danger">
+          <strong>Error:</strong> {error}
+          {error.includes('duplicate key error') && (
+            <p>There was an issue with your payment ID. Please try again.</p>
+          )}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit}>
         <div className="form-group mb-3">
