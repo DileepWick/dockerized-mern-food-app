@@ -9,8 +9,9 @@ import { getLoggedInUser } from './util/auth-utils';
 
 import LoginPage from '../src/app/login/page';
 import RegisterPage from '../src/app/register/register-page';
-import Home from './pages/Home';;
+import Home from './pages/Home';
 import RestaurantForm from './pages/RestaurantForm';
+import UserPage from './pages/userPage';
 import SellerDashboard from './pages/sellerDashboard';
 import PaymentPage from './pages/PaymentPage';
 
@@ -41,10 +42,10 @@ function App() {
         {/* Public Route */}
         <Route path='/login' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
-        <Route path='/register' element={<RegisterPage />} />
         <Route path='/restaurantForm' element={<RestaurantForm />} />
+        <Route path='/userPage' element={<UserPage />} />
         <Route path='/sellerDashboard' element={<SellerDashboard />} />
-        <Route path='/paymentForm' element={<PaymentPage/>}/>
+        <Route path='/paymentForm' element={<PaymentPage />} />
 
         {/* Protected Route */}
         <Route
