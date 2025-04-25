@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { restaurantService } from '../../util/service-gateways';
+import { restaurantService, menuService } from '../../util/service-gateways';
 import { Loader2, ImagePlus } from 'lucide-react';
 
 const MENU_CATEGORIES = [
@@ -126,10 +126,7 @@ const MenuItemForm = ({ restaurantId, onItemAdded, onCancel }) => {
     };
 
     try {
-      const res = await restaurantService.post(
-        'restaurant/menu-items',
-        payload
-      );
+      const res = await menuService.post('menu-items', payload);
       console.log('Created menu item:', res.data);
       setSuccess('Menu item created successfully!');
 

@@ -75,6 +75,14 @@ app.use(
 );
 
 app.use(
+  '/api/menu',
+  createProxyMiddleware({
+    target: 'http://localhost:3005/api/menu',
+    changeOrigin: true,
+  })
+);
+
+app.use(
   '/api/users',
   createProxyMiddleware({
     target: 'http://localhost:3006/api/users',

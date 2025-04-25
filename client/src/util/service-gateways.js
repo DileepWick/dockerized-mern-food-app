@@ -1,8 +1,8 @@
 // client/src/api/services.js
-import axios from "axios";
+import axios from 'axios';
 
 // Base URL of the API Gateway
-const GATEWAY_BASE_URL = "http://localhost:3007/api";
+const GATEWAY_BASE_URL = 'http://localhost:3007/api';
 
 // Create axios instances routed through API Gateway
 const authService = axios.create({
@@ -35,6 +35,11 @@ const restaurantService = axios.create({
   withCredentials: true,
 });
 
+const menuService = axios.create({
+  baseURL: `${GATEWAY_BASE_URL}/menu`,
+  withCredentials: true,
+});
+
 const userManagementService = axios.create({
   baseURL: `${GATEWAY_BASE_URL}/users`,
   withCredentials: true,
@@ -48,4 +53,5 @@ export {
   orderService,
   paymentService,
   userManagementService,
+  menuService,
 };
