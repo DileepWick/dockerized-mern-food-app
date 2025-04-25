@@ -1,11 +1,12 @@
-// File: models/Payment.js
 import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema({
+  // MongoDB automatically creates _id field
   payment_id: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    default: () => new mongoose.Types.ObjectId().toString() // Generate a unique ID if not provided
   },
   order_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -44,6 +45,7 @@ const paymentSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
 
 const Payment = mongoose.model('Payment', paymentSchema);
 

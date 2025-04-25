@@ -12,6 +12,7 @@ import RegisterPage from '../src/app/register/register-page';
 import Home from './pages/Home';;
 import RestaurantForm from './pages/RestaurantForm';
 import SellerDashboard from './pages/sellerDashboard';
+import PaymentPage from './pages/PaymentPage';
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -43,7 +44,8 @@ function App() {
         <Route path='/register' element={<RegisterPage />} />
         <Route path='/restaurantForm' element={<RestaurantForm />} />
         <Route path='/sellerDashboard' element={<SellerDashboard />} />
-        
+        <Route path='/paymentForm' element={<PaymentPage/>}/>
+
         {/* Protected Route */}
         <Route
           path='/'
