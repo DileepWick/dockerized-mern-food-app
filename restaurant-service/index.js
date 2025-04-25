@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import restaurantRoutes from './routes/restaurantRoutes.js'; // Import your product routes
+import menuRoutes from './routes/menuRoutes.js'; // Import your menu routes
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +36,7 @@ connectDB(); // Use the function from your db.js to connect to MongoDB
 
 // Routes
 app.use('/api/restaurant', restaurantRoutes); // Use product routes
+app.use('/api/menu', menuRoutes); // Use menu routes
 
 // Start server
 app.listen(process.env.PORT, () => {
