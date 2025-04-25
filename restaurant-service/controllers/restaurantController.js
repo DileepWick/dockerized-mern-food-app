@@ -1,6 +1,6 @@
 // controllers/restaurantController.js
 import Restaurant from '../models/restaurant.js';
-import { validateToken } from '../utils/validateUser.js';
+import { validateToken, getFullUser } from '../utils/validateUser.js';
 
 // Create a new restaurant (user can only create one)
 export const createRestaurant = async (req, res) => {
@@ -16,11 +16,17 @@ export const createRestaurant = async (req, res) => {
       return res.status(400).json({ message: 'User already has a restaurant' });
     }
 
+    const fullUserData = await getFullUser(token); // Use getFullUser here
+    if (!fullUserData || !fullUserData.address?.postal_code) {
+      return res.status(400).json({ message: 'User postal code not found' });
+    }
+
     const restaurant = await Restaurant.create({
       owner_id: user.userId,
       name,
       description,
       is_active,
+      postal_code: fullUserData.address.postal_code,
     });
 
     res.status(201).json(restaurant);
