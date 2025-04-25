@@ -20,22 +20,22 @@ import { getUploadSignature } from '../controllers/cloudinaryController.js';
 
 const router = express.Router();
 
-// Restaurant routes
-router.post('/', createRestaurant);
-router.get('/', getAllRestaurants);
-router.get('/:id', getRestaurantById);
-router.put('/:id', updateRestaurant);
-router.get('/owner/:id', getRestaurantByOwnerId);
-
 // Cloudinary route
 router.get('/cloudinary/signature', getUploadSignature);
 
 // Menu item routes
 router.post('/menu-items', createMenuItem);
 router.get('/menu-items', getAllMenuItems);
-router.get('/menu-items/:id', getMenuItemById);
 router.get('/menu-items/restaurant/:id', getMenuItemsByRestaurantId);
+router.get('/menu-items/:id', getMenuItemById);
 router.put('/menu-items/:id', updateMenuItem);
 router.delete('/menu-items/:id', deleteMenuItem);
+
+// Restaurant routes
+router.post('/', createRestaurant);
+router.get('/', getAllRestaurants);
+router.get('/:id', getRestaurantById);
+router.put('/:id', updateRestaurant);
+router.get('/owner/:id', getRestaurantByOwnerId);
 
 export default router;
