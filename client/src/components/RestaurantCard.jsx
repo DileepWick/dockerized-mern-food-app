@@ -8,9 +8,9 @@ const RestaurantCard = ({ restaurant, onSelect }) => {
       onClick={() => onSelect(restaurant)}
     >
       <div className='h-40 bg-gray-300 relative'>
-        {restaurant.image_url ? (
+        {restaurant.cover_image ? (
           <img
-            src={restaurant.image_url}
+            src={restaurant.cover_image}
             alt={restaurant.name}
             className='w-full h-full object-cover'
           />

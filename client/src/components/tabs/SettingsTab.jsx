@@ -1,4 +1,3 @@
-// tabs/SettingsTab.jsx
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,16 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ImagePlus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { restaurantService } from '../../util/service-gateways';
 
 const SettingsTab = ({ restaurant }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const [formData, setFormData] = useState({
     name: restaurant.name || '',
     description: restaurant.description || '',
     is_active: restaurant.is_active !== undefined ? restaurant.is_active : true,
+    cover_image: restaurant.cover_image || '',
   });
 
   const handleInputChange = (e) => {
@@ -28,6 +30,47 @@ const SettingsTab = ({ restaurant }) => {
   const handleToggleChange = (e) => {
     const { name, checked } = e.target;
     setFormData({ ...formData, [name]: checked });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      // Get Cloudinary signature from the backend
+      const res = await restaurantService.get(
+        'restaurant/cloudinary/signature'
+      );
+      const { timestamp, signature, apiKey, cloudName, folder } = res.data;
+
+      // Create form data for Cloudinary upload
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', folder);
+
+      // Upload image to Cloudinary
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: 'POST', body: formData }
+      );
+
+      const data = await uploadRes.json();
+      if (!data.secure_url) throw new Error('Image upload failed');
+
+      // Update form data with the new image URL
+      setFormData((prev) => ({ ...prev, cover_image: data.secure_url }));
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      setUploadError('Image upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -94,8 +137,93 @@ const SettingsTab = ({ restaurant }) => {
             />
           </div>
 
+          {/* Cover Image Section */}
+          <div>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
+              Cover Image
+            </label>
+            <div className='flex flex-col sm:flex-row gap-4'>
+              {/* Current Image Preview */}
+              {formData.cover_image && (
+                <div className='relative'>
+                  <img
+                    src={formData.cover_image}
+                    alt='Restaurant cover'
+                    className='w-full sm:w-40 h-32 object-cover rounded-md border'
+                  />
+                </div>
+              )}
+
+              {/* Upload Button */}
+              <div className='flex items-center'>
+                <div className='relative'>
+                  <input
+                    id='coverImage'
+                    type='file'
+                    accept='image/*'
+                    onChange={handleImageUpload}
+                    className='absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10'
+                    disabled={uploading}
+                  />
+                  <Button
+                    type='button'
+                    variant='outline'
+                    className='relative flex items-center gap-2'
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ImagePlus className='h-4 w-4' />
+                        <span>
+                          {formData.cover_image
+                            ? 'Change Image'
+                            : 'Upload Image'}
+                        </span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {uploadError && (
+              <p className='text-sm text-red-500 mt-2'>{uploadError}</p>
+            )}
+
+            <p className='text-xs text-gray-500 mt-2'>
+              Upload an attractive image of your restaurant (recommended size:
+              1280x720)
+            </p>
+          </div>
+
+          <Separator className='my-4' />
+
+          {/* Active Status Toggle */}
+          <div className='flex items-center space-x-2 hidden'>
+            <input
+              type='checkbox'
+              id='is_active'
+              name='is_active'
+              checked={formData.is_active}
+              onChange={handleToggleChange}
+              className='h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+            />
+            <label htmlFor='is_active' className='text-sm text-gray-700'>
+              Make restaurant active and visible to customers
+            </label>
+          </div>
+
           <div className='pt-4'>
-            <Button type='submit' disabled={isLoading}>
+            <Button
+              type='submit'
+              disabled={isLoading || uploading}
+              className='bg-black hover:bg-gray-800 text-white'
+            >
               {isLoading ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />

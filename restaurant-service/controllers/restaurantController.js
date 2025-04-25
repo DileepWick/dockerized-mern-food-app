@@ -1,4 +1,3 @@
-// controllers/restaurantController.js
 import Restaurant from '../models/restaurant.js';
 import { validateToken, getFullUser } from '../utils/validateUser.js';
 
@@ -8,7 +7,7 @@ export const createRestaurant = async (req, res) => {
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-  const { name, description, is_active } = req.body;
+  const { name, description, is_active, cover_image } = req.body;
 
   try {
     const existing = await Restaurant.findOne({ owner_id: user.userId });
@@ -27,6 +26,7 @@ export const createRestaurant = async (req, res) => {
       description,
       is_active,
       postal_code: fullUserData.address.postal_code,
+      cover_image: cover_image || '', // Add the cover image field
     });
 
     res.status(201).json(restaurant);
@@ -95,11 +95,12 @@ export const updateRestaurant = async (req, res) => {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
-    const { name, description, is_active } = req.body;
+    const { name, description, is_active, cover_image } = req.body;
 
     if (name !== undefined) restaurant.name = name;
     if (description !== undefined) restaurant.description = description;
     if (is_active !== undefined) restaurant.is_active = is_active;
+    if (cover_image !== undefined) restaurant.cover_image = cover_image;
 
     await restaurant.save();
 
@@ -107,5 +108,33 @@ export const updateRestaurant = async (req, res) => {
   } catch (err) {
     console.error('Error updating restaurant:', err);
     res.status(500).json({ message: 'Failed to update restaurant' });
+  }
+};
+
+// Get Cloudinary signature (for secure image uploads)
+export const getCloudinarySignature = async (req, res) => {
+  const token = req.cookies.token;
+  const user = await validateToken(token);
+  if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+  try {
+    // Your Cloudinary credentials would be stored in environment variables
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const folder = `snapbite/restaurants/${user.userId}`;
+
+    // Create the signature using Cloudinary's API
+    const crypto = require('crypto');
+    const signature = crypto
+      .createHash('sha1')
+      .update(`folder=${folder}&timestamp=${timestamp}${apiSecret}`)
+      .digest('hex');
+
+    res.json({ signature, timestamp, apiKey, cloudName, folder });
+  } catch (err) {
+    console.error('Error generating Cloudinary signature:', err);
+    res.status(500).json({ message: 'Failed to generate signature' });
   }
 };
