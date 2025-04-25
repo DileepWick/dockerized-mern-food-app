@@ -13,7 +13,7 @@ import { Loader2, Plus } from 'lucide-react';
 import MenuItemForm from './MenuItemForm';
 import MenuItemList from './MenuItemList';
 import EditMenuItemModal from './EditMenuItemModal';
-import { restaurantService } from '../../util/service-gateways';
+import { menuService } from '../../util/service-gateways';
 
 const MenuTab = ({ restaurantId }) => {
   const [menuItems, setMenuItems] = useState([]);
@@ -30,8 +30,8 @@ const MenuTab = ({ restaurantId }) => {
   const fetchMenuItems = async () => {
     try {
       setLoading(true);
-      const res = await restaurantService.get(
-        `restaurant/menu-items/restaurant/${restaurantId}`
+      const res = await menuService.get(
+        `menu-items/restaurant/${restaurantId}`
       );
       setMenuItems(res.data);
       setError('');

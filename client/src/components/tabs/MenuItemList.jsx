@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { AlertCircle, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { restaurantService } from '../../util/service-gateways';
+import { menuService } from '../../util/service-gateways';
 
 const CATEGORY_NAMES = {
   appetizers: 'Appetizers',
@@ -55,9 +55,7 @@ const MenuItemList = ({
     setDeleteError('');
 
     try {
-      await restaurantService.delete(
-        `restaurant/menu-items/${itemToDelete._id}`
-      );
+      await menuService.delete(`menu-items/${itemToDelete._id}`);
       onDeleteItem(itemToDelete._id);
       setDeleteDialogOpen(false);
     } catch (err) {
