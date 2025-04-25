@@ -57,7 +57,7 @@ export const getOrder = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    if (order.user_id !== user.userId && user.role !== 'ADMIN' && user.role !== 'RESTAURANT') {
+    if (order.user_id !== user.userId && user.role !== 'admin' && user.role !== 'seller') {
       return res.status(403).json({ message: "Unauthorized to view this order" });
     }
 
@@ -91,7 +91,7 @@ export const updateOrderStatus = async (req, res) => {
       if (order.status !== 'PENDING') {
         return res.status(400).json({ message: "Order can only be cancelled while PENDING" });
       }
-    } else if (user.role === 'RESTAURANT') {
+    } else if (user.role === 'seller') {
       if (!['APPROVED', 'PREPARED'].includes(req.body.status)) {
         return res.status(403).json({ message: "Restaurant can only approve or mark as prepared" });
       }
@@ -145,7 +145,7 @@ export const getOrdersByRestaurant = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
-  if (user.role !== 'RESTAURANT') return res.status(403).json({ message: "Only restaurants can view their orders" });
+  if (user.role !== 'seller') return res.status(403).json({ message: "Only restaurants can view their orders" });
 
   try {
     const orders = await Order.find({ restaurant_id: user.userId });
@@ -172,7 +172,7 @@ export const modifyPendingOrder = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be modified" });
     }
 
-    if (order.user_id !== user.userId && user.role !== 'ADMIN') {
+    if (order.user_id !== user.userId && user.role !== 'admin') {
       return res.status(403).json({ message: "Unauthorized to modify this order" });
     }
 
@@ -216,7 +216,7 @@ export const addOrderItem = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be modified" });
     }
 
-    if (order.user_id !== user.userId && user.role !== 'ADMIN') {
+    if (order.user_id !== user.userId && user.role !== 'admin') {
       return res.status(403).json({ message: "Unauthorized to modify this order" });
     }
 
@@ -259,7 +259,7 @@ export const removeOrderItem = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be modified" });
     }
 
-    if (order.user_id !== user.userId && user.role !== 'ADMIN') {
+    if (order.user_id !== user.userId && user.role !== 'admin') {
       return res.status(403).json({ message: "Unauthorized to modify this order" });
     }
 
@@ -295,7 +295,7 @@ export const updateItemQuantity = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be modified" });
     }
 
-    if (order.user_id !== user.userId && user.role !== 'ADMIN') {
+    if (order.user_id !== user.userId && user.role !== 'admin') {
       return res.status(403).json({ message: "Unauthorized to modify this order" });
     }
 
@@ -338,7 +338,7 @@ export const confirmOrder = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be confirmed" });
     }
 
-    if (order.user_id !== user.userId && user.role !== 'ADMIN') {
+    if (order.user_id !== user.userId && user.role !== 'admin') {
       return res.status(403).json({ message: "Unauthorized to confirm this order" });
     }
 
