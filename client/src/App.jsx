@@ -14,6 +14,7 @@ import RestaurantForm from './pages/RestaurantForm';
 import UserPage from './pages/userPage';
 import SellerDashboard from './pages/sellerDashboard';
 import PaymentPage from './pages/PaymentPage';
+import DeliveryDriverDashboard from './pages/DeliveryDashboad';
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -46,6 +47,8 @@ function App() {
         <Route path='/userPage' element={<UserPage />} />
         <Route path='/sellerDashboard' element={<SellerDashboard />} />
         <Route path='/paymentForm' element={<PaymentPage />} />
+        <Route path='/DriverDash' element={<DeliveryDriverDashboard />} />
+
 
         {/* Protected Route */}
         <Route
