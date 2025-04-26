@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {authService} from '../util/service-gateways'; // Import centralized API instance
+import { authService } from '../util/service-gateways'; // Import centralized API instance
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,11 @@ export function LoginForm({ className, ...props }) {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const roleToRoute = {
+    admin: '/admin/dashboard',
+    seller: '/sellerDashboard',
+    user: '/userPage', // normal users go to home
+  };
   // Handle form submission
   async function handleLogin(e) {
     e.preventDefault();
@@ -26,13 +31,14 @@ export function LoginForm({ className, ...props }) {
 
       if (response.status === 200) {
         // Assuming the token is returned as response.data.token
-        const { token } = response.data;
+        const { token, user } = response.data;
 
         // Set token in cookies
         document.cookie = `token=${token}; path=/; SameSite=Strict; Secure`;
 
         // Redirect to the Home page
-        navigate('/');
+        const redirectPath = roleToRoute[user.role] || '/';
+        navigate(redirectPath);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
