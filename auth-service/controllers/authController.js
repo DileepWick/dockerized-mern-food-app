@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+
 // Register controller
 export const registerUser = async (req, res) => {
   try {
@@ -151,3 +152,4 @@ export const validateToken = (req, res) => {
     res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
+
