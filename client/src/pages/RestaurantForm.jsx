@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { restaurantService } from '../util/service-gateways';
+import { getLoggedInUser } from '../util/auth-utils';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,6 +20,36 @@ export default function RestaurantForm({ className, ...props }) {
   const [coverImage, setCoverImage] = useState('');
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkRestaurant = async () => {
+      try {
+        const userData = await getLoggedInUser();
+        if (!userData) {
+          navigate('/login');
+          return;
+        }
+
+        const restaurantResponse = await restaurantService.get(
+          `/restaurant/owner/${userData._id}`
+        );
+
+        if (restaurantResponse.data) {
+          // Restaurant exists → redirect
+          navigate('/sellerDashboard');
+        }
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          // No restaurant found → stay on the form
+          return;
+        }
+        console.error('Error checking restaurant:', err);
+        setError('Failed to check restaurant. Please try again later.');
+      }
+    };
+
+    checkRestaurant();
+  }, [navigate]);
 
   // Handle image upload
   const handleImageUpload = async (e) => {

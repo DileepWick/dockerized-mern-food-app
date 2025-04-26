@@ -1,5 +1,5 @@
-// Main Component: SellerDashboard.jsx
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // import useNavigate
 import { Loader2 } from 'lucide-react';
 import { getLoggedInUser, isAuthorized } from '../util/auth-utils';
 import { restaurantService } from '../util/service-gateways';
@@ -9,15 +9,15 @@ import DashboardHeader from '../components/state/DashboardHeader';
 import DashboardTabs from '../components/state/DashboardTabs';
 import LoadingState from '../components/state/LoadingState';
 import ErrorState from '../components/state/ErrorState';
-import NoRestaurantState from '../components/state/NoRestaurantState';
 
 const SellerDashboard = () => {
+  const navigate = useNavigate(); // initialize navigate
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Mock data for the dashboard - in a real app, this would come from an API
+  // Mock data for the dashboard
   const mockOrders = [
     {
       id: '1234',
@@ -49,7 +49,6 @@ const SellerDashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Get logged in user
         const userData = await getLoggedInUser();
         if (!userData) {
           setError('You must be logged in to view this page');
@@ -65,13 +64,20 @@ const SellerDashboard = () => {
 
         setUser(userData);
 
-        // Fetch the user's restaurant using the new endpoint
         try {
           const restaurantResponse = await restaurantService.get(
             `/restaurant/owner/${userData._id}`
           );
           setRestaurant(restaurantResponse.data);
         } catch (restaurantError) {
+          // 👇 Check if it's a 404 Restaurant not found
+          if (
+            restaurantError.response &&
+            restaurantError.response.status === 404
+          ) {
+            navigate('/restaurantForm');
+            return;
+          }
           console.error('Error fetching restaurant:', restaurantError);
           setError('Failed to load restaurant. Please try again later.');
         }
@@ -85,7 +91,8 @@ const SellerDashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
+  // add navigate to dependencies
 
   if (loading) {
     return <LoadingState />;
@@ -104,11 +111,6 @@ const SellerDashboard = () => {
         buttonText='Go to Login'
       />
     );
-  }
-
-  // If no restaurant is found
-  if (!restaurant) {
-    return <NoRestaurantState user={user} />;
   }
 
   return (
