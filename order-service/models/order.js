@@ -1,3 +1,4 @@
+// models/order.js
 import mongoose from "mongoose";
 
 const orderItemSchema = new mongoose.Schema({
@@ -37,7 +38,7 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  delivery_address_id: {
+  postal_code: {
     type: String,
     required: true,
   },
@@ -52,7 +53,7 @@ const orderSchema = new mongoose.Schema({
   },
   payment_status: {
     type: String,
-    enum: ['UNPAID', 'PAID'],
+    enum: ['UNPAID', 'PAID', 'REFUNDED'],
     default: 'UNPAID',
   },
   placed_at: {

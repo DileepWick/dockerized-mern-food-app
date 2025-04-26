@@ -6,6 +6,11 @@ const authService = axios.create({
   withCredentials: true, 
 });
 
-
+// Create an instance of axios for the restaurant service
+const restaurantService = axios.create({
+  baseURL: "http://localhost:3005/api",
+  withCredentials: true, 
+});
 
 export default authService;
+export { restaurantService };
