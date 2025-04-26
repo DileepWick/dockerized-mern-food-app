@@ -11,6 +11,7 @@ export const createOrder = async (req, res) => {
 
   try {
     const {
+      owner_id,
       restaurant_id,
       postal_code,
       items
@@ -68,7 +69,13 @@ export const createOrder = async (req, res) => {
       modification_deadline: new Date(Date.now() + 15 * 60000) // 15 minutes from now
     });
 
-    res.status(201).json(order);
+    const restaurantDetails = await getRestaurantDetails(restaurant_id);
+
+    res.status(201).json({
+      orderDetails: order,
+      restaurant: restaurantDetails
+    });
+    
   } catch (err) {
     console.error("Error creating order:", err);
     res.status(500).json({ message: "Failed to create order" });

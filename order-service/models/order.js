@@ -7,8 +7,9 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
   },
   menu_item_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'MenuItem',
   },
   quantity: {
     type: Number,
@@ -31,12 +32,14 @@ const orderSchema = new mongoose.Schema({
     unique: true,
   },
   user_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'User',
   },
   restaurant_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: 'Restaurant',
   },
   postal_code: {
     type: String,
