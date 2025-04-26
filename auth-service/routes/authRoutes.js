@@ -13,6 +13,7 @@ router.post("/logout", verifyToken, logoutUser); // Logout
 router.post("/register", registerUser); // Register
 
 
+
 //Auth routes for internal services
 router.post("/validate-token", validateToken); // Validate token
 

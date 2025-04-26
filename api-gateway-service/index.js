@@ -53,7 +53,7 @@ app.use(
 app.use(
   '/api/order',
   createProxyMiddleware({
-    target: 'http://localhost:3003/api/order',
+    target: 'http://localhost:3003/api/orders',
     changeOrigin: true,
   })
 );
