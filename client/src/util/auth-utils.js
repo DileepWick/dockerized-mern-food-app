@@ -58,3 +58,19 @@ export const checkTokenValidity = async () => {
     return false; // Return false if token is invalid or an error occurs
   }
 };
+
+
+// ✅ Get a user by ID
+export const getUserById = async (userId) => {
+  try {
+    const response = await authService.get(`/user/${userId}`);
+    return response.data; // Return user details
+  } catch (error) {
+    console.error(
+      `Error fetching user with ID ${userId}:`,
+      error.response?.data?.message || error.message
+    );
+    return null; // Return null if fetching fails
+  }
+};
+
