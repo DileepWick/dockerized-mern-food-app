@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { getLoggedInUser, getUserById } from "../util/auth-utils";
 import { getOrdersByPostalCode } from "../util/order-utils";
 import { fetchRestaurantById } from "../util/restaurant-utils";
+
+// Imported Components (assuming these would be created similar to the seller dashboard)
+import DashboardHeader from '../components/state/DashboardHeader';
+import LoadingState from '../components/state/LoadingState';
+import ErrorState from '../components/state/ErrorState';
 
 const DeliveryDriverDashboard = () => {
   const [user, setUser] = useState(null);
@@ -81,82 +87,134 @@ const DeliveryDriverDashboard = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div>Loading dashboard...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorState error={error} />;
+  }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Welcome, {user?.first_name}!</h1>
-      <h2 className="text-xl mb-2">
-        Available Deliveries in {user?.address?.postal_code}
-      </h2>
-      {orders.length === 0 ? (
-        <p>No available deliveries right now.</p>
-      ) : (
-        <ul className="space-y-4">
-          {orders.map((order) => {
-            const restaurant = restaurantDetails[order.restaurant_id];
-            const buyer = userDetails[order.user_id];
-            const restaurantOwner = restaurant?.owner_id ? userDetails[restaurant.owner_id] : null;
-            
-            return (
-              <li key={order._id} className="border p-4 rounded-lg shadow">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">Order Information</h3>
-                  <p><strong>Order ID:</strong> {order._id}</p>
-                  <p><strong>Status:</strong> {order.status || "Processing"}</p>
-                </div>
+    <div className="bg-gray-50 min-h-screen poppins-regular">
+      {/* Custom header for driver dashboard */}
+      <div className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Driver Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Welcome, {user?.first_name}! Service area: {user?.address?.postal_code}
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white shadow rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-medium text-gray-800 mb-4">
+            Available Deliveries
+          </h2>
+          
+          {orders.length === 0 ? (
+            <div className="py-12 text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </div>
+              <h3 className="mt-3 text-lg font-medium text-gray-900">No Deliveries Available</h3>
+              <p className="mt-2 text-sm text-gray-500">
+                There are currently no deliveries available in your postal code area.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {orders.map((order) => {
+                const restaurant = restaurantDetails[order.restaurant_id];
+                const buyer = userDetails[order.user_id];
+                const restaurantOwner = restaurant?.owner_id ? userDetails[restaurant.owner_id] : null;
                 
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">Restaurant Details</h3>
-                  {restaurant ? (
-                    <>
-                      <p><strong>Name:</strong> {restaurant.name}</p>
-                      <p><strong>Address:</strong> {restaurant.address?.street}, {restaurant.address?.city}</p>
-                      <p><strong>Postal Code:</strong> {restaurant.address?.postal_code}</p>
-                    </>
-                  ) : (
-                    <p>Loading restaurant details...</p>
-                  )}
-                </div>
-                
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">Restaurant Owner</h3>
-                  {restaurantOwner ? (
-                    <>
-                      <p><strong>Name:</strong> {restaurantOwner.first_name} {restaurantOwner.last_name}</p>
-                      <p><strong>Phone:</strong> {restaurantOwner.phone_number}</p>
-                      <p><strong>Email:</strong> {restaurantOwner.email}</p>
-                      <p><strong>Address:</strong> {restaurantOwner.address?.street}, {restaurantOwner.address?.city}</p>
-                      <p><strong>Postal Code:</strong> {restaurantOwner.address?.postal_code}</p>
-                    </>
-                  ) : (
-                    <p>Loading owner details...</p>
-                  )}
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Customer Details</h3>
-                  {buyer ? (
-                    <>
-                      <p><strong>Name:</strong> {buyer.first_name} {buyer.last_name}</p>
-                      <p><strong>Phone:</strong> {buyer.phone_number}</p>
-                      <p><strong>Address:</strong> {buyer.address?.street}, {buyer.address?.city}</p>
-                      <p><strong>Postal Code:</strong> {buyer.address?.postal_code}</p>
-                    </>
-                  ) : (
-                    <p>Loading customer details...</p>
-                  )}
-                </div>
-                
-                <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-                  Accept Delivery
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                return (
+                  <div key={order._id} className="bg-gray-50 rounded-lg shadow p-6 border border-gray-200">
+                    <div className="flex flex-col lg:flex-row lg:justify-between">
+                      <div className="mb-6 lg:mb-0">
+                        <div className="flex items-center mb-2">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            {order.status || "Processing"}
+                          </span>
+                          <span className="ml-2 text-sm text-gray-500">
+                            Order ID: {order._id}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Restaurant Details */}
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-500 mb-2">Restaurant</h3>
+                            {restaurant ? (
+                              <div className="text-gray-900">
+                                <p className="font-medium">{restaurant.name}</p>
+                                <p className="text-sm">{restaurant.address?.street}</p>
+                                <p className="text-sm">{restaurant.address?.city}, {restaurant.address?.postal_code}</p>
+                              </div>
+                            ) : (
+                              <div className="flex items-center text-sm text-gray-500">
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Loading details...
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Restaurant Owner */}
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-500 mb-2">Restaurant Contact</h3>
+                            {restaurantOwner ? (
+                              <div className="text-gray-900">
+                                <p className="font-medium">{restaurantOwner.first_name} {restaurantOwner.last_name}</p>
+                                <p className="text-sm">{restaurantOwner.phone_number}</p>
+                                <p className="text-sm">{restaurantOwner.email}</p>
+                              </div>
+                            ) : (
+                              <div className="flex items-center text-sm text-gray-500">
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Loading details...
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Customer Details */}
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-500 mb-2">Delivery To</h3>
+                            {buyer ? (
+                              <div className="text-gray-900">
+                                <p className="font-medium">{buyer.first_name} {buyer.last_name}</p>
+                                <p className="text-sm">{buyer.address?.street}</p>
+                                <p className="text-sm">{buyer.address?.city}, {buyer.address?.postal_code}</p>
+                                <p className="text-sm">{buyer.phone_number}</p>
+                              </div>
+                            ) : (
+                              <div className="flex items-center text-sm text-gray-500">
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Loading details...
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                          Accept Delivery
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
