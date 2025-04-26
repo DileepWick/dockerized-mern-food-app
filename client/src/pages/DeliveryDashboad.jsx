@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { getLoggedInUser } from "../util/auth-utils";
 import { getOrdersByPostalCode } from "../util/order-utils";
-import { orderService } from "../util/service-gateways"; // Make sure you import this for accepting deliveries
+import { fetchRestaurantById } from "../util/restaurant-utils";
 
 const DeliveryDriverDashboard = () => {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [restaurantDetails, setRestaurantDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [accepting, setAccepting] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +23,21 @@ const DeliveryDriverDashboard = () => {
           const fetchedOrders = await getOrdersByPostalCode(postalCode);
           console.log("Fetched orders:", fetchedOrders);
           setOrders(fetchedOrders || []);
+          
+          // Fetch restaurant details for each order
+          const restaurantData = {};
+          for (const order of fetchedOrders || []) {
+            if (order.restaurant_id && !restaurantData[order.restaurant_id]) {
+              try {
+                const restaurant = await fetchRestaurantById(order.restaurant_id);
+                restaurantData[order.restaurant_id] = restaurant;
+              } catch (restaurantErr) {
+                console.error(`Error fetching restaurant ${order.restaurant_id}:`, restaurantErr);
+                restaurantData[order.restaurant_id] = null;
+              }
+            }
+          }
+          setRestaurantDetails(restaurantData);
         } else {
           console.log("No postal code found for user.");
         }
@@ -38,29 +53,6 @@ const DeliveryDriverDashboard = () => {
     fetchData();
   }, []);
 
-  const handleAcceptDelivery = async (orderId) => {
-    try {
-      setAccepting(orderId);
-      console.log(`Attempting to accept order with ID: ${orderId}`);
-
-      await orderService.patch(`/orders/${orderId}/assign-driver`, {
-        driverId: user._id,
-      });
-      console.log(`Order ${orderId} successfully assigned to driver ${user._id}`);
-
-      // After accepting, refetch the list of orders
-      const updatedOrders = await getOrdersByPostalCode(user.address.postal_code);
-      console.log("Updated orders after accepting delivery:", updatedOrders);
-      setOrders(updatedOrders || []);
-    } catch (err) {
-      console.error("Error accepting delivery:", err.message);
-      console.log("Full error object during accept delivery:", err);
-      setError("Failed to accept delivery.");
-    } finally {
-      setAccepting(null);
-    }
-  };
-
   if (loading) return <div>Loading dashboard...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -74,20 +66,23 @@ const DeliveryDriverDashboard = () => {
         <p>No available deliveries right now.</p>
       ) : (
         <ul className="space-y-4">
-          {orders.map((order) => (
-            <li key={order._id} className="border p-4 rounded-lg shadow">
-              <p><strong>Order ID:</strong> {order._id}</p>
-              <p><strong>buyerID:</strong> {order.user_id}</p>
-              <p><strong>Resturant ID:</strong> {order.restaurant_id}</p>
-              <button
-                onClick={() => handleAcceptDelivery(order._id)}
-                className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                disabled={accepting === order._id}
-              >
-                {accepting === order._id ? 'Accepting...' : 'Accept Delivery'}
-              </button>
-            </li>
-          ))}
+          {orders.map((order) => {
+            const restaurant = restaurantDetails[order.restaurant_id];
+            return (
+              <li key={order._id} className="border p-4 rounded-lg shadow">
+                <p><strong>Order ID:</strong> {order._id}</p>
+                <p><strong>Buyer ID:</strong> {order.user_id}</p>
+                <p><strong>Restaurant ID:</strong> {order.restaurant_id}</p>
+                {restaurant && (
+                  <>
+                    <p><strong>Restaurant Name:</strong> {restaurant.name}</p>
+                    <p><strong>Restaurant Owner ID:</strong> {restaurant.owner_id}</p>
+                  </>
+                )}
+                {!restaurant && <p>Loading restaurant details...</p>}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
