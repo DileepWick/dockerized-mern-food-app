@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-
-import orderRoutes from './routes/order_routes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 // Load environment variables
 dotenv.config();
