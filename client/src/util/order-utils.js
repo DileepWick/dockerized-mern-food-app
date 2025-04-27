@@ -260,3 +260,18 @@ export const getOrdersByPostalCode = async (postalCode) => {
   }
 };
 
+// Update order status through delivery service
+export const updateOrderStatusByDriver = async (orderId, status) => {
+  try {
+    console.log(`Updating order ${orderId} status to: ${status}`); // Debug log
+    const response = await orderService.patch(`/orders/${orderId}/driver-status`, {
+      status: status
+    });
+    console.log("Order status updated:", response.data); // Debug log
+    return response.data; // Contains updated order object
+  } catch (error) {
+    console.error("Update order status error:", error.response?.data?.message || error.message);
+    return null;
+  }
+};
+

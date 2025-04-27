@@ -314,26 +314,14 @@ export const getOrdersByPostalCode = async (req, res) => {
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
   
-  // Remove this line to allow any authenticated user to access
-  // if (user.role !== 'driver') return res.status(403).json({ message: "Only drivers can access this endpoint" });
-
   try {
     const { postalCode } = req.params;
-    const { status } = req.query;
     
-    const query = { postal_code: postalCode };
-    
-    // Filter by status if provided
-    if (status) {
-      // Remove driver-specific status validation
-      // if (!['APPROVED', 'PREPARED', 'PICKED_UP'].includes(status)) {
-      //   return res.status(400).json({ message: "Invalid status filter for drivers" });
-      // }
-      query.status = status;
-    } else {
-      // Show all orders instead of only driver-ready ones
-      // query.status = { $in: ['APPROVED', 'PREPARED', 'PICKED_UP'] };
-    }
+    // Only fetch orders with status PREPARED
+    const query = { 
+      postal_code: postalCode,
+      status: 'PREPARED'
+    };
     
     const orders = await Order.find(query).sort({ placed_at: -1 });
     
@@ -610,4 +598,27 @@ export const confirmOrder = async (req, res) => {
 // Helper function to recalculate order total
 const recalculateOrderTotal = (items) => {
   return items.reduce((total, item) => total + item.total_price, 0);
+};
+
+//update order status by driver 
+export const updateOrderStatusByDriver = async (req, res) => {
+  const token = req.cookies.token;
+  const user = await validateToken(token);
+  if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const order = await Order.findOne({ order_id: req.params.orderId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Simply update the status to whatever was provided
+    order.status = req.body.status;
+    
+    await order.save();
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    res.status(500).json({ message: "Failed to update order status" });
+  }
 };
