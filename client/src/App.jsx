@@ -22,6 +22,7 @@ import CartPage from './components/order_component/CartPage';
 import DeliveryDriverDashboard from './pages/DeliveryDashboad';
 import DriverRegistrationForm from './pages/DriverRegistration';
 
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -61,7 +62,7 @@ function App() {
         <Route path='/DriverDash' element={<DeliveryDriverDashboard />} />
         <Route path='/DriverRegister' element={<DriverRegistrationForm />} />
 
-
+        <Route path='/admin' element={<AdminDashboard />} />
 
         {/* Protected Route */}
         <Route

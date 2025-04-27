@@ -59,7 +59,6 @@ export const checkTokenValidity = async () => {
   }
 };
 
-
 // ✅ Get a user by ID
 export const getUserById = async (userId) => {
   try {
@@ -73,7 +72,6 @@ export const getUserById = async (userId) => {
     return null; // Return null if fetching fails
   }
 };
-
 
 //Register User
 
@@ -91,7 +89,14 @@ export const registerUser = async (userData) => {
     } = userData;
 
     // Validate required fields based on the schema
-    if (!username || !first_name || !last_name || !email || !phone_number || !password) {
+    if (
+      !username ||
+      !first_name ||
+      !last_name ||
+      !email ||
+      !phone_number ||
+      !password
+    ) {
       throw new Error('All required fields must be provided');
     }
 
@@ -128,7 +133,7 @@ export const registerUser = async (userData) => {
     return {
       user: response.data.user,
       token: response.data.token,
-      message: response.data.message
+      message: response.data.message,
     };
   } catch (error) {
     // Handle specific error cases
@@ -136,7 +141,7 @@ export const registerUser = async (userData) => {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       const errorMessage = error.response.data.message || 'Registration failed';
-      
+
       // Handle specific error cases based on status code
       if (error.response.status === 400) {
         // Handle validation errors or duplicate user
@@ -156,4 +161,46 @@ export const registerUser = async (userData) => {
   }
 };
 
+// ✅ Get all users
+export const fetchAllUsers = async () => {
+  try {
+    const response = await authService.get('/users');
+    return response.data.users; // Return array of users
+  } catch (error) {
+    console.error(
+      'Failed to fetch all users:',
+      error.response?.data?.message || error.message
+    );
+    return [];
+  }
+};
 
+// ✅ Approve (verify) a user
+export const approveUser = async (userId) => {
+  try {
+    const response = await authService.patch(`/user/${userId}/verify`, {
+      is_verified: true,
+    });
+    return response.data.user; // Return updated user
+  } catch (error) {
+    console.error(
+      `Failed to approve user with ID ${userId}:`,
+      error.response?.data?.message || error.message
+    );
+    return null;
+  }
+};
+
+// ✅ Delete a user
+export const deleteUser = async (userId) => {
+  try {
+    await authService.delete(`/user/${userId}`);
+    return true;
+  } catch (error) {
+    console.error(
+      `Failed to delete user with ID ${userId}:`,
+      error.response?.data?.message || error.message
+    );
+    return false;
+  }
+};

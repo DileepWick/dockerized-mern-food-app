@@ -16,7 +16,7 @@ export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
 
   const roleToRoute = {
-    admin: '/admin/dashboard',
+    admin: '/admin',
     seller: '/sellerDashboard',
     user: '/userPage',
     driver: '/DriverDash',
