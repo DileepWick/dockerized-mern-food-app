@@ -8,4 +8,7 @@ const authService = axios.create({
 
 
 
-export default authService;
+
+
+
+export {authService};

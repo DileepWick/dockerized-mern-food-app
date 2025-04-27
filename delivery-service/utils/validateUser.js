@@ -1,4 +1,4 @@
-import authService from "./axiosInstances"; // Import centralized API instance
+import { authService } from "./axiosInstances.js";
 
 // Validate token from auth service
 export const validateToken = async (token) => {
