@@ -121,9 +121,7 @@ const MyOrders = () => {
             <Link to={`/orders/${order.order_id}`} className="order-card" key={order.order_id}>
               <div className="order-header">
                 <div className="restaurant-info">
-                  <div className="restaurant-image">
-                    <img src={order.restaurant?.image || '/api/placeholder/60/60'} alt={order.restaurant?.name} />
-                  </div>
+                  
                   <div className="restaurant-details">
                     <h3>{order.restaurant?.name || 'Restaurant'}</h3>
                     <p className="order-id">Order #{order.order_id.substring(order.order_id.indexOf('-') + 1)}</p>
@@ -141,21 +139,32 @@ const MyOrders = () => {
               </div>
               
               <div className="order-items">
-                {order.items.slice(0, 2).map(item => (
-                  <div className="order-item" key={item.order_item_id}>
-                    <div className="item-info">
-                      <span className="item-quantity">{item.quantity}×</span>
-                      <span className="item-name">{item.menu_item_name || item.menu_item_id}</span>
-                    </div>
-                    <span className="item-price">₹{item.total_price.toFixed(2)}</span>
-                  </div>
-                ))}
-                {order.items.length > 2 && (
-                  <div className="more-items">
-                    +{order.items.length - 2} more items
-                  </div>
-                )}
-              </div>
+  {order.items.slice(0, 2).map(item => (
+    <div className="order-item" key={item.order_item_id}>
+      {/* Add the item image if available */}
+      {item.image_url && (
+        <div className="item-image">
+          <img 
+            src={item.image_url || '/api/placeholder/40/40'} 
+            alt={item.name || 'Menu item'}
+            className="menu-item-thumbnail"
+            style={{ width: '24px', height: '24px', objectFit: 'cover', borderRadius: '4px' }}
+          />
+        </div>
+      )}
+      <div className="item-info">
+        <span className="item-quantity">{item.quantity}×</span>
+        <span className="item-name">{item.name || item.menu_item_id}</span>
+      </div>
+      <span className="item-price">₹{item.total_price.toFixed(2)}</span>
+    </div>
+  ))}
+  {order.items.length > 2 && (
+    <div className="more-items">
+      +{order.items.length - 2} more items
+    </div>
+  )}
+</div>
               
               <div className="order-footer">
                 <div className="order-total">

@@ -6,7 +6,7 @@ import axios from 'axios';
 export const getUserOrders = async (statusFilter = null) => {
   try {
     // Make sure this endpoint matches exactly what's defined in your backend
-    let url = 'http://localhost:3003/api/orders/user/orders';
+    let url = 'http://localhost:3007/api/order/user/orders';
     
     // Add status filter if provided
     if (statusFilter) {
@@ -34,7 +34,7 @@ export const getUserOrders = async (statusFilter = null) => {
 // Create a new order
 export const createOrder = async (restaurantId, items) => {
   try {
-    let url = 'http://localhost:3003/api/orders/orders';
+    let url = 'http://localhost:3007/api/order/orders';
     const token = localStorage.getItem('authToken');
     const config = {
       headers: {
@@ -46,7 +46,6 @@ export const createOrder = async (restaurantId, items) => {
 
     const response = await axios.post(url, {
       restaurant_id: restaurantId,
-      postal_code: "12345",
       items
     }, config);
 
@@ -61,7 +60,7 @@ export const createOrder = async (restaurantId, items) => {
 export const addOrderItem = async (orderId, menuItemId, quantity = 1) => {
   try {
     // Define the URL as a variable
-    let url = `http://localhost:3003/api/orders/orders/${orderId}/add-item`;
+    let url = `http://localhost:3007/api/order/orders/${orderId}/add-item`;
     
     // Get the authentication token
     const token = localStorage.getItem('authToken');
@@ -103,7 +102,7 @@ export const removeOrderItem = async (orderId, orderItemId) => {
     };
     
     const response = await axios.patch(
-      `http://localhost:3003/api/orders/orders/${orderId}/remove-item`,
+      `http://localhost:3007/api/order/orders/${orderId}/remove-item`,
       {
         order_item_id: orderItemId
       },
@@ -130,7 +129,7 @@ export const updateItemQuantity = async (orderId, orderItemId, quantity) => {
     };
     
     const response = await axios.patch(
-      `http://localhost:3003/api/orders/orders/${orderId}/update-quantity`,
+      `http://localhost:3007/api/order/orders/${orderId}/update-quantity`,
       {
         order_item_id: orderItemId,
         quantity
@@ -158,7 +157,7 @@ export const confirmOrder = async (orderId) => {
     };
     
     const response = await axios.patch(
-      `http://localhost:3003/api/orders/orders/${orderId}/confirm`,
+      `http://localhost:3007/api/order/orders/${orderId}/confirm`,
       {},
       config
     );
@@ -174,7 +173,7 @@ export const confirmOrder = async (orderId) => {
 export const getRestaurantOrders = async (restaurantId, statusFilter = null) => {
     try {
       // Make sure this endpoint matches your backend route
-      let url = `http://localhost:3003/api/orders/restaurants/${restaurantId}/orders`;
+      let url = `http://localhost:3007/api/order/restaurants/${restaurantId}/orders`;
       
       // Add status filter if provided
       if (statusFilter) {
@@ -228,7 +227,7 @@ export const updateOrderStatus = async (orderId, status) => {
       console.log(`Updating order ${orderId} to status: ${status}`);
       
       const response = await axios.patch(
-        `http://localhost:3003/api/orders/orders/${orderId}/status`,
+        `http://localhost:3007/api/order/orders/${orderId}/status`,
         { status }, // Send status as is - already uppercase from the component
         config
       );
