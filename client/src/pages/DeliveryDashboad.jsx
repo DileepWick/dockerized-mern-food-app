@@ -143,10 +143,16 @@ const DeliveryDriverDashboard = () => {
       // Just accept the delivery - set to ACCEPTED status
       const newStatus = 'ACCEPTED';
       
+      // Calculate total amount if not available in order
+      const totalAmount = order.total_amount || 
+        (order.items || []).reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+      
       // Prepare delivery data
       const deliveryData = {
         order_id: order._id,
         driver_id: user._id, // Current logged-in driver's ID
+        restaurant_id: order.restaurant_id, // Add restaurant_id from order
+        total_amount: totalAmount, // Add total_amount either from order or calculated
         buyer_address: buyer?.address || order.delivery_address || {
           street: "Address unavailable",
           city: "Unknown",
