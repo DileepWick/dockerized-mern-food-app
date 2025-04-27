@@ -19,7 +19,7 @@ app.use(
       'http://localhost:5173',
       'http://localhost:3007',
     ], // Allows only frontend running on localhost:5173 and localhost:4173
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Specify allowed methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
     credentials: true, // Allow credentials (cookies) to be sent
   })
@@ -61,7 +61,6 @@ app.use(
 app.use(
   '/api/payment',
   createProxyMiddleware({
-
     target: 'http://localhost:3004/api/payments',
     changeOrigin: true,
   })

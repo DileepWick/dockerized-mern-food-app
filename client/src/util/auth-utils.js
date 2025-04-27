@@ -59,7 +59,6 @@ export const checkTokenValidity = async () => {
   }
 };
 
-
 // ✅ Get a user by ID
 export const getUserById = async (userId) => {
   try {
@@ -74,3 +73,46 @@ export const getUserById = async (userId) => {
   }
 };
 
+// ✅ Get all users
+export const fetchAllUsers = async () => {
+  try {
+    const response = await authService.get('/users');
+    return response.data.users; // Return array of users
+  } catch (error) {
+    console.error(
+      'Failed to fetch all users:',
+      error.response?.data?.message || error.message
+    );
+    return [];
+  }
+};
+
+// ✅ Approve (verify) a user
+export const approveUser = async (userId) => {
+  try {
+    const response = await authService.patch(`/user/${userId}/verify`, {
+      is_verified: true,
+    });
+    return response.data.user; // Return updated user
+  } catch (error) {
+    console.error(
+      `Failed to approve user with ID ${userId}:`,
+      error.response?.data?.message || error.message
+    );
+    return null;
+  }
+};
+
+// ✅ Delete a user
+export const deleteUser = async (userId) => {
+  try {
+    await authService.delete(`/user/${userId}`);
+    return true;
+  } catch (error) {
+    console.error(
+      `Failed to delete user with ID ${userId}:`,
+      error.response?.data?.message || error.message
+    );
+    return false;
+  }
+};
