@@ -51,7 +51,7 @@ const RestaurantCard = ({ restaurant, onSelect }) => {
             <span>25-35 min</span>
           </div>
 
-          <button className='text-blue-600 flex items-center text-sm'>
+          <button className='text-green-600 flex items-center text-sm hover:text-green-800 duration-300 cursor-pointer'>
             View Menu <ChevronRight className='h-4 w-4 ml-1' />
           </button>
         </div>

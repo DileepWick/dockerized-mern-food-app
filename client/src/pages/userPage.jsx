@@ -267,7 +267,7 @@ const UserPage = () => {
 
       <div className='max-w-7xl mx-auto px-4 py-6'>
         {/* Search Bar */}
-        <div className='relative mb-6'>
+        <div className='relative mb-10'>
           <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
             <Search className='w-5 h-5 text-gray-400' />
           </div>
@@ -283,19 +283,19 @@ const UserPage = () => {
         <div className='flex flex-col'>
           <div className='w-full'>
             {selectedRestaurant ? (
-              <div>
-                <div className='flex justify-center items-center mb-4 gap-4'>
-                  <h2 className='text-2xl font-bold'>
+              <div className='border p-10 rounded-2xl bg-white shadow-2xl'>
+                <div className='flex justify-between items-center mb-4 gap-4'>
+                  <h2 className='text-3xl font-bold'>
                     {selectedRestaurant.name}
                   </h2>
                   <button
                     onClick={() => setSelectedRestaurant(null)}
-                    className='text-sm text-blue-600 hover:text-blue-800'
+                    className='text-sm text-white bg-black border px-5 py-3 rounded-full cursor-pointer hover:bg-white hover:text-black duration-300'
                   >
                     Back to restaurants
                   </button>
                 </div>
-                <p className='text-gray-600 mb-6'>
+                <p className='text-gray-600 mb-10'>
                   {selectedRestaurant.description}
                 </p>
 
@@ -316,8 +316,8 @@ const UserPage = () => {
                             filteredMenuItems.map((item) => item.category)
                           ),
                         ].map((category) => (
-                          <div key={category} className='mb-8'>
-                            <h3 className='text-xl font-semibold mb-4 border-b pb-2'>
+                          <div key={category} className='mb-10'>
+                            <h3 className='text-xl font-semibold mb-10 border-b pb-2 uppercase'>
                               {category}
                             </h3>
                             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
