@@ -24,8 +24,9 @@ export const createDeliveryUtil = async (deliveryData) => {
     console.log("Creating delivery for order:", deliveryData.order_id); // Debug log
     
     // Validate required fields before making the request
-    if (!deliveryData.order_id || !deliveryData.buyer_address || 
-        !deliveryData.restaurant_address || !deliveryData.items) {
+    if (!deliveryData.order_id || !deliveryData.driver_id || 
+        !deliveryData.buyer_address || !deliveryData.restaurant_address || 
+        !deliveryData.items) {
       throw new Error('Missing required delivery information');
     }
 
@@ -56,5 +57,24 @@ export const updateDeliveryStatusUtil = async (deliveryId, newStatus) => {
   } catch (error) {
     console.error("Update delivery status error:", error.response?.data?.message || error.message);
     throw error; // Re-throw the error for the controller to handle
+  }
+};
+
+
+export const getDeliveriesByDriverIdUtil = async (driverId) => {
+  try {
+    console.log(`Fetching deliveries for driver: ${driverId}`); // Debug log
+    
+    // Input validation
+    if (!driverId) {
+      throw new Error('Driver ID is required');
+    }
+
+    const response = await deliveryService.get(`/driver/${driverId}/deliveries`);
+    console.log(`Found ${response.data?.data?.length || 0} deliveries for driver`); // Debug log
+    return response.data?.data || []; // Return the data array or empty array
+  } catch (error) {
+    console.error("Get deliveries error:", error.response?.data?.message || error.message);
+    return []; // Return empty array in case of error
   }
 };
