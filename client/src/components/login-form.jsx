@@ -18,8 +18,10 @@ export function LoginForm({ className, ...props }) {
   const roleToRoute = {
     admin: '/admin/dashboard',
     seller: '/sellerDashboard',
-    user: '/userPage', // normal users go to home
+    user: '/userPage',
+    driver: '/DriverDash',
   };
+  
   // Handle form submission
   async function handleLogin(e) {
     e.preventDefault();
