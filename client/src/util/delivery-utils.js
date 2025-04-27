@@ -17,3 +17,44 @@ export const createVehicle = async (driverId, vehicleType, licensePlate) => {
   }
 };
 
+
+
+export const createDeliveryUtil = async (deliveryData) => {
+  try {
+    console.log("Creating delivery for order:", deliveryData.order_id); // Debug log
+    
+    // Validate required fields before making the request
+    if (!deliveryData.order_id || !deliveryData.buyer_address || 
+        !deliveryData.restaurant_address || !deliveryData.items) {
+      throw new Error('Missing required delivery information');
+    }
+
+    const response = await deliveryService.post('/createDelivery', deliveryData);
+    console.log("Delivery created successfully:", response.data); // Debug log
+    return response.data; // Returns the created delivery
+  } catch (error) {
+    console.error("Create delivery error:", error.response?.data?.message || error.message);
+    throw error; // Re-throw the error for the controller to handle
+  }
+};
+
+
+
+export const updateDeliveryStatusUtil = async (deliveryId, newStatus) => {
+  try {
+    console.log(`Updating status for delivery ${deliveryId} to ${newStatus}`); // Debug log
+    
+    // Validate the status is one of the allowed values
+    const validStatuses = ['PICKED_UP', 'DELIVERED', 'CANCELLED'];
+    if (!validStatuses.includes(newStatus)) {
+      throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+
+    const response = await deliveryService.put(`/status/${deliveryId}/status`, { status: newStatus });
+    console.log("Delivery status updated successfully:", response.data); // Debug log
+    return response.data; // Returns the updated delivery
+  } catch (error) {
+    console.error("Update delivery status error:", error.response?.data?.message || error.message);
+    throw error; // Re-throw the error for the controller to handle
+  }
+};
