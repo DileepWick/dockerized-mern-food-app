@@ -16,22 +16,18 @@ const DeliveryDriverDashboard = () => {
   const [userDetails, setUserDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(null);
-  
-  const statusOptions = [
-    { value: null, label: 'All Orders' },
-    { value: 'PREPARED', label: 'Prepared' },
-    { value: 'ACCEPTED', label: 'Accepted' },
-    { value: 'PICKED_UP', label: 'Picked Up' },
-    { value: 'DELIVERED', label: 'Delivered' },
-    { value: 'CANCELLED', label: 'Cancelled' }
-  ];
+  const [processingOrderId, setProcessingOrderId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const loggedInUser = await getLoggedInUser();
         console.log("Logged in user fetched successfully:", loggedInUser);
+        
+        if (!loggedInUser || !loggedInUser._id) {
+          throw new Error("Failed to get logged in user or user ID is missing");
+        }
+        
         setUser(loggedInUser);
 
         const postalCode = loggedInUser.address?.postal_code;
@@ -121,32 +117,36 @@ const DeliveryDriverDashboard = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Filter orders based on active filter
-  const filteredOrders = activeFilter 
-    ? orders.filter(order => order.status === activeFilter)
-    : orders;
-
-  const handleAcceptDelivery = async (orderId) => {
+  const handleAcceptDelivery = async (order) => {
     try {
-      console.log("Accepting delivery for order:", orderId);
+      setProcessingOrderId(order._id);
+      console.log("Accepting delivery for order:", order._id);
       
-      // Find the order in the current orders array
-      const order = orders.find(o => o._id === orderId);
-      if (!order) {
-        throw new Error(`Order ${orderId} not found in state`);
+      if (!user || !user._id) {
+        throw new Error("Driver user ID is missing. Please log in again.");
       }
+      
+      console.log("Driver ID for delivery:", user._id);
       
       // Get restaurant and buyer details
       const restaurant = restaurantDetails[order.restaurant_id];
       const buyer = userDetails[order.user_id];
       
       if (!restaurant) {
-        throw new Error(`Restaurant details not found for order ${orderId}`);
+        throw new Error(`Restaurant details not found for order ${order._id}`);
       }
+      
+      if (!order._id) {
+        throw new Error(`Order ID is missing for this order`);
+      }
+      
+      // Just accept the delivery - set to ACCEPTED status
+      const newStatus = 'ACCEPTED';
       
       // Prepare delivery data
       const deliveryData = {
-        order_id: orderId,
+        order_id: order._id,
+        driver_id: user._id, // Current logged-in driver's ID
         buyer_address: buyer?.address || order.delivery_address || {
           street: "Address unavailable",
           city: "Unknown",
@@ -157,41 +157,42 @@ const DeliveryDriverDashboard = () => {
           city: "Unknown",
           postal_code: "Unknown"
         },
-        items: order.items || [],
-        driver_id: user?._id // Current logged-in driver
+        items: order.items || []
       };
       
-      // Update order status to ACCEPTED
-      await updateOrderStatusByDriver(orderId, 'ACCEPTED');
+      console.log("Creating delivery with data:", deliveryData);
       
-      // Call the createDeliveryUtil function to create the delivery
-      await createDeliveryUtil(deliveryData);
+      // Create delivery entry
+      const createdDelivery = await createDeliveryUtil(deliveryData);
+      console.log("Delivery created:", createdDelivery);
+      
+      // Update order status to ACCEPTED
+      if (order.order_id) {
+        await updateOrderStatusByDriver(order.order_id, newStatus);
+      } else {
+        await updateOrderStatusByDriver(order._id, newStatus);
+      }
       
       // Update local state to reflect the change
       setOrders(orders.map(o => 
-        o._id === orderId ? { ...o, status: 'ACCEPTED' } : o
+        o._id === order._id ? { ...o, status: newStatus } : o
       ));
+      
+      console.log(`Successfully accepted delivery for order ${order._id}`);
+      
+      // Refresh the page
+      //window.location.reload();
+      
     } catch (error) {
       console.error("Error accepting delivery:", error);
       alert(`Failed to accept delivery: ${error.message}`);
+    } finally {
+      setProcessingOrderId(null);
     }
   };
 
-  const handleUpdateStatus = async (orderId, newStatus) => {
-    try {
-      console.log(`Updating order ${orderId} to status ${newStatus}`);
-      
-      // Update order status
-      await updateOrderStatusByDriver(orderId, newStatus);
-      
-      // Update local state to reflect the change
-      setOrders(orders.map(order => 
-        order._id === orderId ? { ...order, status: newStatus } : order
-      ));
-    } catch (error) {
-      console.error(`Error updating order status to ${newStatus}:`, error);
-      alert(`Failed to update order status: ${error.message}`);
-    }
+  const navigateToAcceptedDeliveries = () => {
+    window.location.href = "http://localhost:5173/acceptedDeliveries";
   };
 
   if (loading) {
@@ -207,36 +208,30 @@ const DeliveryDriverDashboard = () => {
       {/* Dashboard Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Driver Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Welcome, {user?.first_name}! Service area: {user?.address?.postal_code}
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-800">
+                Driver Dashboard
+              </h1>
+              <p className="text-gray-600">
+                Welcome, {user?.first_name}! Service area: {user?.address?.postal_code}
+              </p>
+              {user?._id && (
+                <p className="text-xs text-gray-500 mt-1">Driver ID: {user._id}</p>
+              )}
+            </div>
+            <button
+              onClick={navigateToAcceptedDeliveries}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              View My Deliveries
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Status filter buttons */}
-        <div className="bg-white shadow rounded-lg p-4 mb-6">
-          <div className="flex overflow-x-auto pb-2 space-x-2">
-            {statusOptions.map(option => (
-              <button 
-                key={option.value || 'all'} 
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                  activeFilter === option.value 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                }`}
-                onClick={() => setActiveFilter(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {filteredOrders.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="bg-white shadow rounded-lg p-12 text-center">
             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -245,14 +240,15 @@ const DeliveryDriverDashboard = () => {
             </div>
             <h3 className="mt-3 text-lg font-medium text-gray-900">No Deliveries Available</h3>
             <p className="mt-2 text-sm text-gray-500">
-              There are currently no deliveries {activeFilter ? `with status "${activeFilter.replace('_', ' ').toLowerCase()}"` : ''} in your postal code area.
+              There are currently no deliveries in your postal code area.
             </p>
           </div>
         ) : (
           <div className="space-y-6">
-            {filteredOrders.map((order) => {
+            {orders.map((order) => {
               const restaurant = restaurantDetails[order.restaurant_id];
               const buyer = userDetails[order.user_id];
+              const isProcessing = processingOrderId === order._id;
               
               return (
                 <div key={order._id} className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
@@ -284,7 +280,7 @@ const DeliveryDriverDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Locations */}
                       <div className="space-y-4">
-                                                  {/* Restaurant Location */}
+                        {/* Restaurant Location */}
                         <div>
                           <h4 className="text-sm font-medium text-gray-500 mb-1">Pickup From</h4>
                           {restaurant ? (
@@ -302,7 +298,7 @@ const DeliveryDriverDashboard = () => {
                           )}
                         </div>
                         
-                                                  {/* Customer Location */}
+                        {/* Customer Location */}
                         <div>
                           <h4 className="text-sm font-medium text-gray-500 mb-1">Deliver To</h4>
                           {buyer ? (
@@ -361,38 +357,22 @@ const DeliveryDriverDashboard = () => {
                     </div>
                   </div>
                   
-                  {/* Actions */}
+                  {/* Actions - Single Accept Delivery button */}
                   <div className="p-4 bg-gray-50 flex justify-end space-x-3">
-                    {order.status === 'PREPARED' && (
-                      <button 
-                        onClick={() => handleAcceptDelivery(order._id)}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                      >
-                        Accept Delivery
-                      </button>
-                    )}
-                    
-                    {order.status === 'ACCEPTED' && (
-                      <button 
-                        onClick={() => handleUpdateStatus(order._id, 'PICKED_UP')}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                      >
-                        Mark Picked Up
-                      </button>
-                    )}
-                    
-                    {order.status === 'PICKED_UP' && (
-                      <button 
-                        onClick={() => handleUpdateStatus(order._id, 'DELIVERED')}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                      >
-                        Mark Delivered
-                      </button>
-                    )}
-                    
-                    {/* Removed "Mark Picked Up" button from PREPARED status section */}
-                    
-                    {/* Removed cancel button - drivers cannot cancel deliveries */}
+                    <button 
+                      onClick={() => handleAcceptDelivery(order)}
+                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      disabled={order.status !== 'PREPARED' || isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Accept Delivery'
+                      )}
+                    </button>
                   </div>
                 </div>
               );

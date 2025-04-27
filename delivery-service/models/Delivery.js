@@ -9,6 +9,13 @@ const deliverySchema = new Schema({
     required: true
   },
 
+  // Driver reference
+  driver_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+
   // Buyer information
   buyer_address: {
     street: String,
@@ -34,7 +41,7 @@ const deliverySchema = new Schema({
   assigned_at: Date,
   status: {
     type: String,
-    enum: ['PICKED_UP', 'DELIVERED', 'CANCELLED','ACCEPTED'],
+    enum: ['PICKED_UP', 'DELIVERED', 'CANCELLED', 'ACCEPTED'],
     default: 'ACCEPTED',
   },
 }, {
