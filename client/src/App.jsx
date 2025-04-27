@@ -20,6 +20,7 @@ import CartPage from './components/order_component/CartPage';
 
 =======
 import DeliveryDriverDashboard from './pages/DeliveryDashboad';
+import DriverRegistrationForm from './pages/DriverRegistration';
 
 
 // Protected Route
@@ -58,6 +59,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
 =======
         <Route path='/DriverDash' element={<DeliveryDriverDashboard />} />
+        <Route path='/DriverRegister' element={<DriverRegistrationForm />} />
 
 
 
