@@ -21,7 +21,7 @@ import {
   isAuthorized,
 } from '../util/auth-utils';
 
-import { Toaster } from '@/components/ui/sonner';
+// import { Toaster } from '@/components/ui/sonner';
 
 import {
   Card,
@@ -171,14 +171,14 @@ const AdminDashboard = () => {
         )
       );
 
-      Toaster('User approved', {
-        description: 'User has been verified successfully.',
-      });
+      // Toaster('User approved', {
+      //   description: 'User has been verified successfully.',
+      // });
     } catch (error) {
-      Toaster('Error', {
-        description: 'Failed to approve user. Please try again.',
-        variant: 'destructive',
-      });
+      // Toaster('Error', {
+      //   description: 'Failed to approve user. Please try again.',
+      //   variant: 'destructive',
+      // });
     }
   };
 
@@ -194,20 +194,18 @@ const AdminDashboard = () => {
     try {
       const result = await deleteUser(selectedUser._id);
       if (result) {
-        // Remove user from state
-        setUsers(users.filter((user) => user._id !== selectedUser._id));
-
-        Toaster('User deleted', {
-          description: 'User was successfully removed from the system.',
-        });
+        // Toaster('User deleted', {
+        //   description: 'User was successfully removed from the system.',
+        // });
+        window.location.reload(); // <-- Simply reload the page
       } else {
         throw new Error('Failed to delete user');
       }
     } catch (error) {
-      Toaster('Error', {
-        description: 'Failed to delete user. Please try again.',
-        variant: 'destructive',
-      });
+      // Toaster('Error', {
+      //   description: 'Failed to delete user. Please try again.',
+      //   variant: 'destructive',
+      // });
     } finally {
       setDeleteDialogOpen(false);
       setSelectedUser(null);
@@ -218,9 +216,9 @@ const AdminDashboard = () => {
   const handleRefresh = () => {
     setLoading(true);
     setRefreshTrigger((prev) => prev + 1);
-    Toaster('Refreshing', {
-      description: 'Updating user data...',
-    });
+    // Toaster('Refreshing', {
+    //   description: 'Updating user data...',
+    // });
   };
 
   // Get counts for dashboard overview
@@ -254,7 +252,7 @@ const AdminDashboard = () => {
   const counts = getCounts();
 
   return (
-    <div className='container mx-auto py-6 space-y-8'>
+    <div className='container mx-auto py-6 space-y-8 poppins-regular'>
       <div className='flex justify-between items-center'>
         <h1 className='text-3xl font-bold'>Admin Dashboard</h1>
         <Button
