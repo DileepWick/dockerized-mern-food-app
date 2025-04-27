@@ -21,7 +21,7 @@ const notificationService = axios.create({
 });
 
 const orderService = axios.create({
-  baseURL: `${GATEWAY_BASE_URL}/orders`,
+  baseURL: `${GATEWAY_BASE_URL}/order`,
   withCredentials: true,
 });
 
