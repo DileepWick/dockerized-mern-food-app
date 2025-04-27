@@ -43,7 +43,15 @@ const UserPage = () => {
           const restaurantsResponse = await restaurantService.get(
             '/restaurant'
           );
-          setRestaurants(restaurantsResponse.data);
+          const allRestaurants = restaurantsResponse.data;
+
+          // Filter restaurants based on postal code match
+          const nearbyRestaurants = allRestaurants.filter(
+            (restaurant) =>
+              restaurant.postal_code === userData.address.postal_code
+          );
+
+          setRestaurants(nearbyRestaurants);
         } catch (restaurantError) {
           console.error('Error fetching restaurants:', restaurantError);
           setError('Failed to load restaurants. Please try again later.');
@@ -52,7 +60,7 @@ const UserPage = () => {
         // Check if there's a current order/cart in localStorage
         const storedCart = localStorage.getItem('currentCart');
         const storedOrder = localStorage.getItem('currentOrder');
-        
+
         if (storedCart && storedOrder) {
           setCart(JSON.parse(storedCart));
           setCurrentOrder(JSON.parse(storedOrder));
@@ -89,85 +97,83 @@ const UserPage = () => {
       if (!currentOrder) {
         // First click - Create new order
         const newOrder = await createOrder(selectedRestaurant._id, [
-          { menu_item_id: item._id, quantity: 1 }
+          { menu_item_id: item._id, quantity: 1 },
         ]);
-        
+
         // Save the new order details
         setCurrentOrder(newOrder);
-        
+
         // Add order_item_id to the cart item - This is crucial for future updates
         const orderItemId = newOrder.orderDetails.items[0].order_item_id;
-        
+
         // Update cart state with the new item
-        const newItem = { 
-          ...item, 
-          quantity: 1, 
-          order_item_id: orderItemId 
+        const newItem = {
+          ...item,
+          quantity: 1,
+          order_item_id: orderItemId,
         };
-        
+
         setCart([newItem]);
-        
+
         // Store in localStorage
         localStorage.setItem('currentCart', JSON.stringify([newItem]));
         localStorage.setItem('currentOrder', JSON.stringify(newOrder));
-        
       } else {
         // Check if item already exists in cart
-        const existingItem = cart.find(cartItem => cartItem._id === item._id);
-        
+        const existingItem = cart.find((cartItem) => cartItem._id === item._id);
+
         if (existingItem) {
           // Increase quantity if item already exists
           const response = await addOrderItem(
-            currentOrder.orderDetails.order_id, 
-            item._id, 
+            currentOrder.orderDetails.order_id,
+            item._id,
             1
           );
-          
+
           // Find the index of the updated item in the response
           const updatedItemIndex = response.items.findIndex(
-            orderItem => orderItem.menu_item_id === item._id
+            (orderItem) => orderItem.menu_item_id === item._id
           );
-          
+
           // Extract the order_item_id
           const orderItemId = response.items[updatedItemIndex].order_item_id;
-          
+
           // Update the cart item with the new quantity and order_item_id
-          const updatedCart = cart.map(cartItem => 
+          const updatedCart = cart.map((cartItem) =>
             cartItem._id === item._id
-              ? { 
-                  ...cartItem, 
+              ? {
+                  ...cartItem,
                   quantity: cartItem.quantity + 1,
-                  order_item_id: orderItemId 
+                  order_item_id: orderItemId,
                 }
               : cartItem
           );
-          
+
           setCart(updatedCart);
           localStorage.setItem('currentCart', JSON.stringify(updatedCart));
-          
         } else {
           // Add new item to cart
           const response = await addOrderItem(
-            currentOrder.orderDetails.order_id, 
-            item._id, 
+            currentOrder.orderDetails.order_id,
+            item._id,
             1
           );
-          
+
           // Find the newly added item in the response
           const newItemIndex = response.items.findIndex(
-            orderItem => orderItem.menu_item_id === item._id
+            (orderItem) => orderItem.menu_item_id === item._id
           );
-          
+
           // Extract the order_item_id
           const orderItemId = response.items[newItemIndex].order_item_id;
-          
+
           // Add the new item with the order_item_id
-          const newItem = { 
-            ...item, 
-            quantity: 1, 
-            order_item_id: orderItemId 
+          const newItem = {
+            ...item,
+            quantity: 1,
+            order_item_id: orderItemId,
           };
-          
+
           const updatedCart = [...cart, newItem];
           setCart(updatedCart);
           localStorage.setItem('currentCart', JSON.stringify(updatedCart));
