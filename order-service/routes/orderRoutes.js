@@ -3,21 +3,24 @@ import {
   createOrder,
   getOrder,
   updateOrderStatus,
-  getOrdersByUser,
+  
   getOrdersByRestaurant,
   getOrdersByPostalCode,
   modifyPendingOrder,
   addOrderItem,
   removeOrderItem,
   updateItemQuantity,
-  confirmOrder
+  confirmOrder,
+  getUserOrders
 } from '../controllers/orderController.js';
 
 const router = express.Router();
 
+router.get("/user/orders", getUserOrders);
+
 // User routes
 router.post('/orders', createOrder);
-router.get('/orders/user', getOrdersByUser);
+
 router.patch('/orders/:orderId', modifyPendingOrder);
 router.patch('/orders/:orderId/add-item', addOrderItem);
 router.patch('/orders/:orderId/remove-item', removeOrderItem);

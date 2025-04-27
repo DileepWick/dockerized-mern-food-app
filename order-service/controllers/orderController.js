@@ -85,7 +85,7 @@ export const createOrder = async (req, res) => {
 export const getOrder = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
-  if (!user) return res.status(401).json({ message: "Unauthorized" });
+  if (!user) return res.status(401).json({ message: "Unauthorized user not found" });
 
   try {
     const order = await Order.findOne({ order_id: req.params.orderId });
@@ -123,10 +123,13 @@ export const updateOrderStatus = async (req, res) => {
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
 
+  const orderid = req.params.orderId;
+  console.log(  console.log("Order ID:", orderid));
+
   try {
-    const order = await Order.findOne({ order_id: req.params.orderId });
+    const order = await Order.findById(orderid);
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(404).json({ message: "Order not found to update the status to "  });
     }
 
     // Validate permissions based on role
@@ -178,16 +181,6 @@ export const updateOrderStatus = async (req, res) => {
 
     // Update order status
     order.status = req.body.status;
-    
-    // Set estimated delivery time for approved orders (moved from CONFIRMED to APPROVED)
-    if (req.body.status === 'APPROVED' && !order.estimated_delivery_time) {
-      order.estimated_delivery_time = new Date(Date.now() + 45 * 60000); // 45 minutes from now
-    }
-    
-    // Update if provided
-    if (req.body.estimated_delivery_time) {
-      order.estimated_delivery_time = req.body.estimated_delivery_time;
-    }
 
     await order.save();
     res.status(200).json(order);
@@ -198,32 +191,33 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 
-export const getOrdersByUser = async (req, res) => {
+export const getUserOrders = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
-  if (user.role !== 'user') return res.status(403).json({ message: "Only users can access this endpoint" });
 
   try {
+    // Find all orders for this user, sorted by most recent first
     const orders = await Order.find({ user_id: user.userId }).sort({ placed_at: -1 });
     
-    // Fetch restaurant details for each order
-    const ordersWithRestaurants = await Promise.all(orders.map(async (order) => {
-      const orderObj = order.toObject();
+    // For each order, fetch the restaurant details
+    for (let i = 0; i < orders.length; i++) {
       try {
-        orderObj.restaurant = await getRestaurantDetails(order.restaurant_id);
+        const restaurantDetails = await getRestaurantDetails(orders[i].restaurant_id);
+        orders[i]._doc.restaurant = restaurantDetails;
       } catch (error) {
-        console.error(`Error fetching restaurant details for order ${order.order_id}:`, error);
+        console.error(`Error fetching restaurant details for order ${orders[i].order_id}:`, error);
+        // Continue without restaurant details if there's an error
       }
-      return orderObj;
-    }));
+    }
     
-    res.status(200).json(ordersWithRestaurants);
+    res.status(200).json(orders);
   } catch (err) {
     console.error("Error fetching user orders:", err);
     res.status(500).json({ message: "Failed to fetch user orders" });
   }
 };
+
 
 export const getOrdersByRestaurant = async (req, res) => {
   const token = req.cookies.token;
@@ -234,9 +228,6 @@ export const getOrdersByRestaurant = async (req, res) => {
   try {
     const restaurantId = req.params.restaurantId || user.userId;
     
-    // If requesting another restaurant's orders
-    
-    
     // Fetch restaurant details
     let restaurantDetails;
     try {
@@ -246,7 +237,12 @@ export const getOrdersByRestaurant = async (req, res) => {
       // Continue without restaurant details
     }
     
-    const orders = await Order.find({ restaurant_id: restaurantId }).sort({ placed_at: -1 });
+    // Modified query to only show confirmed or later status orders
+    // The status flow is: 'PENDING', 'CONFIRMED', 'APPROVED', 'PREPARED', 'PICKED_UP', 'DELIVERED'
+    const orders = await Order.find({ 
+      restaurant_id: restaurantId,
+      status: { $in: ['CONFIRMED', 'APPROVED', 'PREPARED', 'PICKED_UP', 'DELIVERED'] }
+    }).sort({ placed_at: -1 });
     
     const response = {
       restaurant: restaurantDetails,
@@ -388,9 +384,7 @@ export const addOrderItem = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be modified" });
     }
 
-    if (order.user_id !== user.userId) {
-      return res.status(403).json({ message: "Unauthorized to modify this order" });
-    }
+  
 
     // Check if modification deadline has passed
     if (Date.now() > order.modification_deadline) {
@@ -492,9 +486,7 @@ export const updateItemQuantity = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be modified" });
     }
 
-    if (order.user_id !== user.userId) {
-      return res.status(403).json({ message: "Unauthorized to modify this order" });
-    }
+    
 
     // Check if modification deadline has passed
     if (Date.now() > order.modification_deadline) {
@@ -540,9 +532,7 @@ export const confirmOrder = async (req, res) => {
       return res.status(400).json({ message: "Only pending orders can be confirmed" });
     }
 
-    if (order.user_id !== user.userId) {
-      return res.status(403).json({ message: "Unauthorized to confirm this order" });
-    }
+    
 
     // Get restaurant details before confirming
     try {

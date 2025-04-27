@@ -14,6 +14,9 @@ import RestaurantForm from './pages/RestaurantForm';
 import UserPage from './pages/userPage';
 import SellerDashboard from './pages/sellerDashboard';
 import PaymentPage from './pages/PaymentPage';
+import MyOrders from './pages/MyOrders';
+import CartPage from './components/order_component/CartPage';
+
 
 // Protected Route
 const ProtectedRoute = ({ children }) => {
@@ -46,6 +49,8 @@ function App() {
         <Route path='/userPage' element={<UserPage />} />
         <Route path='/sellerDashboard' element={<SellerDashboard />} />
         <Route path='/paymentForm' element={<PaymentPage />} />
+        <Route path='/myOrders' element={<MyOrders />} /> 
+        <Route path="/cart" element={<CartPage />} />
 
         {/* Protected Route */}
         <Route

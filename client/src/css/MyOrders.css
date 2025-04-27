@@ -1,0 +1,308 @@
+/* src/pages/MyOrders.css */
+.my-orders-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: #333;
+  }
+  
+  .page-header {
+    padding-bottom: 20px;
+  }
+  
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111;
+    margin: 0;
+  }
+  
+  .order-filters {
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  
+  .filter-scroll {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+  }
+  
+  .filter-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .filter-scroll::-webkit-scrollbar-thumb {
+    background-color: #e0e0e0;
+    border-radius: 4px;
+  }
+  
+  .filter-btn {
+    background-color: transparent;
+    border: 1px solid #e0e0e0;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    color: #555;
+  }
+  
+  .filter-btn:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .filter-btn.active {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+  }
+  
+  .no-orders {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #eee;
+  }
+  
+  .empty-illustration {
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  
+  .no-orders h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .no-orders p {
+    margin: 0 0 20px;
+    color: #666;
+  }
+  
+  .primary-btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 25px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+  
+  .primary-btn:hover {
+    background-color: #000;
+  }
+  
+  .orders-list {
+    display: grid;
+    gap: 16px;
+  }
+  
+  .order-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #eee;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  
+  .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .restaurant-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .restaurant-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 12px;
+    background-color: #f0f0f0;
+  }
+  
+  .restaurant-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .restaurant-details h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+  }
+  
+  .order-id {
+    color: #777;
+    font-size: 13px;
+    margin: 3px 0 0;
+  }
+  
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background-color: #f5f5f5;
+    color: #555;
+    text-transform: capitalize;
+  }
+  
+  .status-badge.pending {
+    background-color: #fff8e1;
+    color: #ff8f00;
+  }
+  
+  .status-badge.confirmed {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .status-badge.prepared {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+  
+  .status-badge.picked_up {
+    background-color: #e0f7fa;
+    color: #0097a7;
+  }
+  
+  .status-badge.delivered {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+  
+  .status-badge.cancelled {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+  
+  .order-date {
+    padding: 10px 16px;
+    background-color: #fafafa;
+    font-size: 13px;
+    color: #777;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .order-items {
+    padding: 16px;
+  }
+  
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .item-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .item-quantity {
+    color: #333;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  
+  .item-name {
+    color: #333;
+  }
+  
+  .item-price {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .more-items {
+    font-size: 13px;
+    color: #777;
+    padding-top: 5px;
+  }
+  
+  .order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-top: 1px solid #f0f0f0;
+    background-color: #fafafa;
+  }
+  
+  .order-total {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .total-label {
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .total-amount {
+    font-weight: 700;
+    color: #111;
+    font-size: 16px;
+  }
+  
+  /* Mobile responsiveness */
+  @media screen and (max-width: 600px) {
+    .my-orders-container {
+      padding: 16px;
+    }
+    
+    .page-header h1 {
+      font-size: 20px;
+    }
+    
+    .order-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .restaurant-info {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+    
+    .status-container {
+      align-self: flex-start;
+    }
+  }
