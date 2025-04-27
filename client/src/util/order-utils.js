@@ -1,3 +1,251 @@
+
+// src/util/order-utils.js
+import axios from 'axios';
+
+// Get all orders for the current logged-in user with optional status filter
+export const getUserOrders = async (statusFilter = null) => {
+  try {
+    // Make sure this endpoint matches exactly what's defined in your backend
+    let url = 'http://localhost:3003/api/orders/user/orders';
+    
+    // Add status filter if provided
+    if (statusFilter) {
+      url += `?status=${statusFilter}`;
+    }
+    
+    // Get the authentication token
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true // This ensures cookies are sent with the request
+    };
+    
+    const response = await axios.get(url, config);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    throw error;
+  }
+};
+
+// Create a new order
+export const createOrder = async (restaurantId, items) => {
+  try {
+    let url = 'http://localhost:3003/api/orders/orders';
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    };
+
+    const response = await axios.post(url, {
+      restaurant_id: restaurantId,
+      postal_code: "12345",
+      items
+    }, config);
+
+    return response.data;  // FULL response, not just orderDetails
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
+  }
+};
+  
+// Add an item to an existing order - Fixed to properly return the updated order with items
+export const addOrderItem = async (orderId, menuItemId, quantity = 1) => {
+  try {
+    // Define the URL as a variable
+    let url = `http://localhost:3003/api/orders/orders/${orderId}/add-item`;
+    
+    // Get the authentication token
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true // This ensures cookies are sent with the request
+    };
+    
+    const response = await axios.patch(
+      url,
+      {
+        menu_item_id: menuItemId,
+        quantity
+      },
+      config
+    );
+    
+    // Return the updated order so we can get the new order_item_id
+    return response.data;
+  } catch (error) {
+    console.error('Error adding item to order:', error);
+    throw error;
+  }
+};
+
+// Remove an item from an existing order
+export const removeOrderItem = async (orderId, orderItemId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    };
+    
+    const response = await axios.patch(
+      `http://localhost:3003/api/orders/orders/${orderId}/remove-item`,
+      {
+        order_item_id: orderItemId
+      },
+      config
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error removing item from order:', error);
+    throw error;
+  }
+};
+
+// Update the quantity of an item in an existing order
+export const updateItemQuantity = async (orderId, orderItemId, quantity) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    };
+    
+    const response = await axios.patch(
+      `http://localhost:3003/api/orders/orders/${orderId}/update-quantity`,
+      {
+        order_item_id: orderItemId,
+        quantity
+      },
+      config
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error updating item quantity:', error);
+    throw error;
+  }
+};
+
+// Confirm an order
+export const confirmOrder = async (orderId) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    };
+    
+    const response = await axios.patch(
+      `http://localhost:3003/api/orders/orders/${orderId}/confirm`,
+      {},
+      config
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error confirming order:', error);
+    throw error;
+  }
+};
+
+// Get all orders for a specific restaurant
+export const getRestaurantOrders = async (restaurantId, statusFilter = null) => {
+    try {
+      // Make sure this endpoint matches your backend route
+      let url = `http://localhost:3003/api/orders/restaurants/${restaurantId}/orders`;
+      
+      // Add status filter if provided
+      if (statusFilter) {
+        url += `?status=${statusFilter}`;
+      }
+      
+      console.log('Fetching orders from URL:', url);
+      
+      const token = localStorage.getItem('authToken');
+      const config = {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      };
+      
+      const response = await axios.get(url, config);
+      console.log('Raw API response:', response);
+      
+      // Check the structure of the response
+      if (response.data) {
+        console.log('Response data structure:', {
+          isArray: Array.isArray(response.data),
+          hasOrdersProperty: response.data.hasOwnProperty('orders'),
+          keys: Object.keys(response.data)
+        });
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching restaurant orders:', error);
+      throw error;
+    }
+  };
+
+
+
+// Update order status
+export const updateOrderStatus = async (orderId, status) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const config = {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      };
+      
+      console.log(`Updating order ${orderId} to status: ${status}`);
+      
+      const response = await axios.patch(
+        `http://localhost:3003/api/orders/orders/${orderId}/status`,
+        { status }, // Send status as is - already uppercase from the component
+        config
+      );
+      
+      console.log('Status update response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      // Add more detailed error logging
+      if (error.response) {
+        console.error('Response error data:', error.response.data);
+        console.error('Response error status:', error.response.status);
+      }
+      throw error;
+    }
+  };
+
 import { orderService } from './service-gateways.js'; // Import centralized API instance
 
 // Get orders by postal code from order service (NO STATUS FILTER ANYMORE)
@@ -12,3 +260,4 @@ export const getOrdersByPostalCode = async (postalCode) => {
     return null;
   }
 };
+

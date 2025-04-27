@@ -1,9 +1,10 @@
-// components/Header.jsx
 import { User, ShoppingBag, Menu } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Header = ({ user, cartCount }) => {
+const Header = ({ user, cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className='bg-white shadow-sm sticky top-0 z-10'>
@@ -11,33 +12,27 @@ const Header = ({ user, cartCount }) => {
         <div className='flex items-center'>
           <h1 className='text-xl font-bold text-blue-600'>SnapByte</h1>
         </div>
-
-        <div className='flex items-center gap-10 py-8'>
+        <div className='hidden md:flex items-center gap-10'>
           <nav className='flex items-center space-x-4'>
             <a href='/userPage' className='text-gray-700 hover:text-blue-600'>
               Home
             </a>
-            <a
-              href='/restaurants'
-              className='text-gray-700 hover:text-blue-600'
-            >
+            <a href='/restaurants' className='text-gray-700 hover:text-blue-600'>
               Restaurants
             </a>
-            <a href='/orders' className='text-gray-700 hover:text-blue-600'>
+            <a href='/MyOrders' className='text-gray-700 hover:text-blue-600'>
               My Orders
             </a>
           </nav>
-
           <div className='flex items-center gap-4'>
-            <a href='/cart' className='relative'>
+            <button onClick={onCartClick} className='relative'>
               <ShoppingBag className='h-6 w-6 text-gray-700' />
               {cartCount > 0 && (
                 <span className='absolute -top-2 -right-2 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full'>
                   {cartCount}
                 </span>
               )}
-            </a>
-
+            </button>
             <div className='flex items-center'>
               <div className='bg-gray-200 p-1 rounded-full'>
                 <User className='h-5 w-5 text-gray-700' />
@@ -48,7 +43,6 @@ const Header = ({ user, cartCount }) => {
             </div>
           </div>
         </div>
-
         {/* Mobile menu button */}
         <button
           className='md:hidden flex items-center'
@@ -57,7 +51,6 @@ const Header = ({ user, cartCount }) => {
           <Menu className='h-6 w-6 text-gray-700' />
         </button>
       </div>
-
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className='md:hidden bg-white border-t px-4 py-2'>
@@ -65,24 +58,30 @@ const Header = ({ user, cartCount }) => {
             <a href='/' className='py-2 text-gray-700 hover:text-blue-600'>
               Home
             </a>
-            <a
-              href='/restaurants'
-              className='py-2 text-gray-700 hover:text-blue-600'
-            >
+            <a href='/restaurants' className='py-2 text-gray-700 hover:text-blue-600'>
               Restaurants
             </a>
-            <a
-              href='/orders'
-              className='py-2 text-gray-700 hover:text-blue-600'
-            >
+            <a href='/MyOrders' className='py-2 text-gray-700 hover:text-blue-600'>
               My Orders
             </a>
+            <button 
+              onClick={onCartClick}
+              className='flex items-center py-2 text-gray-700 hover:text-blue-600'
+            >
+              <ShoppingBag className='h-5 w-5 mr-2' />
+              Cart
+              {cartCount > 0 && (
+                <span className='ml-2 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full'>
+                  {cartCount}
+                </span>
+              )}
+            </button>
             <div className='flex items-center py-2'>
               <div className='bg-gray-200 p-1 rounded-full'>
                 <User className='h-5 w-5 text-gray-700' />
               </div>
               <span className='ml-2 text-sm font-medium text-gray-700'>
-                {user?.first_name || 'User'}
+                {user?.name || 'User'}
               </span>
             </div>
           </nav>
