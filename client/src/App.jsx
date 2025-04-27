@@ -18,7 +18,7 @@ import PaymentPage from './pages/PaymentPage';
 import MyOrders from './pages/MyOrders';
 import CartPage from './components/order_component/CartPage';
 
-=======
+
 import DeliveryDriverDashboard from './pages/DeliveryDashboad';
 
 
@@ -56,7 +56,7 @@ function App() {
 
         <Route path='/myOrders' element={<MyOrders />} /> 
         <Route path="/cart" element={<CartPage />} />
-=======
+
         <Route path='/DriverDash' element={<DeliveryDriverDashboard />} />
 
 

@@ -99,7 +99,7 @@ const OrdersTab = ({ restaurant }) => {
     
     return items.map((item, index) => (
       <div key={index} className="text-sm text-gray-600">
-        {item.quantity}x {item.menu_item?.name || 'Unknown Item'}
+        {item.quantity}x {item.menu_item?.name || item.menu_item_id || 'Unknown Item'}
       </div>
     ));
   };
