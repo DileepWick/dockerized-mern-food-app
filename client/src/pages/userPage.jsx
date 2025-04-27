@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Search, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getLoggedInUser } from '../util/auth-utils';
 import { restaurantService, menuService } from '../util/service-gateways';
+import { createOrder, addOrderItem } from '../util/order-utils';
 
 // Imported Components
 import Header from '../components/Header';
@@ -11,6 +13,7 @@ import LoadingState from '../components/state/LoadingState';
 import ErrorState from '../components/state/ErrorState';
 
 const UserPage = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
@@ -21,6 +24,7 @@ const UserPage = () => {
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +47,15 @@ const UserPage = () => {
         } catch (restaurantError) {
           console.error('Error fetching restaurants:', restaurantError);
           setError('Failed to load restaurants. Please try again later.');
+        }
+
+        // Check if there's a current order/cart in localStorage
+        const storedCart = localStorage.getItem('currentCart');
+        const storedOrder = localStorage.getItem('currentOrder');
+        
+        if (storedCart && storedOrder) {
+          setCart(JSON.parse(storedCart));
+          setCurrentOrder(JSON.parse(storedOrder));
         }
 
         setLoading(false);
@@ -71,19 +84,98 @@ const UserPage = () => {
     setMenuLoading(false);
   };
 
-  const addToCart = (item) => {
-    const existingItem = cart.find((cartItem) => cartItem._id === item._id);
-
-    if (existingItem) {
-      setCart(
-        cart.map((cartItem) =>
-          cartItem._id === item._id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        )
-      );
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
+  const addToCart = async (item) => {
+    try {
+      if (!currentOrder) {
+        // First click - Create new order
+        const newOrder = await createOrder(selectedRestaurant._id, [
+          { menu_item_id: item._id, quantity: 1 }
+        ]);
+        
+        // Save the new order details
+        setCurrentOrder(newOrder);
+        
+        // Add order_item_id to the cart item - This is crucial for future updates
+        const orderItemId = newOrder.orderDetails.items[0].order_item_id;
+        
+        // Update cart state with the new item
+        const newItem = { 
+          ...item, 
+          quantity: 1, 
+          order_item_id: orderItemId 
+        };
+        
+        setCart([newItem]);
+        
+        // Store in localStorage
+        localStorage.setItem('currentCart', JSON.stringify([newItem]));
+        localStorage.setItem('currentOrder', JSON.stringify(newOrder));
+        
+      } else {
+        // Check if item already exists in cart
+        const existingItem = cart.find(cartItem => cartItem._id === item._id);
+        
+        if (existingItem) {
+          // Increase quantity if item already exists
+          const response = await addOrderItem(
+            currentOrder.orderDetails.order_id, 
+            item._id, 
+            1
+          );
+          
+          // Find the index of the updated item in the response
+          const updatedItemIndex = response.items.findIndex(
+            orderItem => orderItem.menu_item_id === item._id
+          );
+          
+          // Extract the order_item_id
+          const orderItemId = response.items[updatedItemIndex].order_item_id;
+          
+          // Update the cart item with the new quantity and order_item_id
+          const updatedCart = cart.map(cartItem => 
+            cartItem._id === item._id
+              ? { 
+                  ...cartItem, 
+                  quantity: cartItem.quantity + 1,
+                  order_item_id: orderItemId 
+                }
+              : cartItem
+          );
+          
+          setCart(updatedCart);
+          localStorage.setItem('currentCart', JSON.stringify(updatedCart));
+          
+        } else {
+          // Add new item to cart
+          const response = await addOrderItem(
+            currentOrder.orderDetails.order_id, 
+            item._id, 
+            1
+          );
+          
+          // Find the newly added item in the response
+          const newItemIndex = response.items.findIndex(
+            orderItem => orderItem.menu_item_id === item._id
+          );
+          
+          // Extract the order_item_id
+          const orderItemId = response.items[newItemIndex].order_item_id;
+          
+          // Add the new item with the order_item_id
+          const newItem = { 
+            ...item, 
+            quantity: 1, 
+            order_item_id: orderItemId 
+          };
+          
+          const updatedCart = [...cart, newItem];
+          setCart(updatedCart);
+          localStorage.setItem('currentCart', JSON.stringify(updatedCart));
+        }
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setError('Failed to add item to cart. Please try again.');
     }
   };
 
@@ -91,13 +183,25 @@ const UserPage = () => {
     const existingItem = cart.find((item) => item._id === itemId);
 
     if (existingItem && existingItem.quantity > 1) {
-      setCart(
-        cart.map((item) =>
-          item._id === itemId ? { ...item, quantity: item.quantity - 1 } : item
-        )
+      const updatedCart = cart.map((item) =>
+        item._id === itemId ? { ...item, quantity: item.quantity - 1 } : item
       );
+      setCart(updatedCart);
+      localStorage.setItem('currentCart', JSON.stringify(updatedCart));
     } else {
-      setCart(cart.filter((item) => item._id !== itemId));
+      const updatedCart = cart.filter((item) => item._id !== itemId);
+      setCart(updatedCart);
+      localStorage.setItem('currentCart', JSON.stringify(updatedCart));
+    }
+  };
+
+  const handleCartClick = () => {
+    if (cart.length > 0) {
+      localStorage.setItem('currentCart', JSON.stringify(cart));
+      localStorage.setItem('currentOrder', JSON.stringify(currentOrder));
+      navigate('/cart');
+    } else {
+      setIsCartOpen(true);
     }
   };
 
@@ -151,8 +255,8 @@ const UserPage = () => {
     <div className='bg-gray-50 min-h-screen poppins-regular'>
       <Header
         user={user}
-        cartCount={cart.length}
-        onCartClick={() => setIsCartOpen(true)}
+        cartCount={cart.reduce((total, item) => total + item.quantity, 0)}
+        onCartClick={handleCartClick}
       />
 
       <div className='max-w-7xl mx-auto px-4 py-6'>
@@ -302,6 +406,17 @@ const UserPage = () => {
                 ))}
                 <div className='border-t pt-4 font-semibold text-right'>
                   Total: ${cartTotal.toFixed(2)}
+                </div>
+                <div className='flex justify-end'>
+                  <button
+                    className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700'
+                    onClick={() => {
+                      navigate('/cart');
+                      setIsCartOpen(false);
+                    }}
+                  >
+                    Checkout
+                  </button>
                 </div>
               </div>
             )}
