@@ -52,6 +52,8 @@ const DeliveryDriverDashboard = () => {
                 if (restaurant.owner_id && !userData[restaurant.owner_id]) {
                   try {
                     const ownerData = await getUserById(restaurant.owner_id);
+                    // Log the entire owner user object
+                    console.log(`Restaurant Owner (${restaurant.name}) - Full User Object:`, ownerData);
                     userData[restaurant.owner_id] = ownerData?.user || null;
                   } catch (ownerErr) {
                     console.error(`Error fetching restaurant owner ${restaurant.owner_id}:`, ownerErr);
@@ -130,6 +132,7 @@ const DeliveryDriverDashboard = () => {
       
       // Get restaurant and buyer details
       const restaurant = restaurantDetails[order.restaurant_id];
+      const restaurantOwner = userDetails[restaurant?.owner_id];
       const buyer = userDetails[order.user_id];
       
       if (!restaurant) {
@@ -147,6 +150,25 @@ const DeliveryDriverDashboard = () => {
       const totalAmount = order.total_amount || 
         (order.items || []).reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
       
+      // Determine the restaurant address to use - prefer restaurant address, fall back to owner address
+      let restaurantAddress = restaurant.address;
+      
+      // If restaurant address is missing or incomplete, use owner's address if available
+      if ((!restaurantAddress || !restaurantAddress.street || !restaurantAddress.city) && 
+          restaurantOwner && restaurantOwner.address) {
+        console.log("Using restaurant owner's address for delivery:", restaurantOwner.address);
+        restaurantAddress = restaurantOwner.address;
+      }
+      
+      if (!restaurantAddress || !restaurantAddress.street) {
+        console.log("No valid restaurant address found, using default");
+        restaurantAddress = {
+          street: "Address unavailable", 
+          city: "Unknown",
+          postal_code: "Unknown"
+        };
+      }
+      
       // Prepare delivery data
       const deliveryData = {
         order_id: order._id,
@@ -158,11 +180,7 @@ const DeliveryDriverDashboard = () => {
           city: "Unknown",
           postal_code: order.postal_code || "Unknown"
         },
-        restaurant_address: restaurant.address || {
-          street: "Address unavailable", 
-          city: "Unknown",
-          postal_code: "Unknown"
-        },
+        restaurant_address: restaurantAddress,
         items: order.items || []
       };
       
@@ -292,9 +310,42 @@ const DeliveryDriverDashboard = () => {
                           {restaurant ? (
                             <div className="text-gray-800">
                               <p className="font-medium">{restaurant.name}</p>
-                              {restaurant.address?.street && <p className="text-sm">{restaurant.address.street}</p>}
-                              {restaurant.address?.city && <p className="text-sm">{restaurant.address.city}{restaurant.address?.postal_code && `, ${restaurant.address.postal_code}`}</p>}
-                              {restaurant.phone && <p className="text-sm">{restaurant.phone}</p>}
+                              
+                              {/* Use restaurant address or owner address if restaurant address is not available */}
+                              {restaurant.address?.street && (
+                                <p className="text-sm">{restaurant.address.street}</p>
+                              )}
+                              {restaurant.address?.city && (
+                                <p className="text-sm">
+                                  {restaurant.address.city}
+                                  {restaurant.address?.postal_code && `, ${restaurant.address.postal_code}`}
+                                </p>
+                              )}
+                              
+                              {/* If restaurant doesn't have address but owner does, use owner's address */}
+                              {!restaurant.address?.street && userDetails[restaurant.owner_id]?.address?.street && (
+                                <p className="text-sm">{userDetails[restaurant.owner_id].address.street}</p>
+                              )}
+                              {!restaurant.address?.city && userDetails[restaurant.owner_id]?.address?.city && (
+                                <p className="text-sm">
+                                  {userDetails[restaurant.owner_id].address.city}
+                                  {userDetails[restaurant.owner_id].address?.postal_code && 
+                                    `, ${userDetails[restaurant.owner_id].address.postal_code}`}
+                                </p>
+                              )}
+                              
+                              {/* Contact information */}
+                              {restaurant.phone && <p className="text-sm">📞 {restaurant.phone}</p>}
+                              {!restaurant.phone && userDetails[restaurant.owner_id]?.phone_number && (
+                                <p className="text-sm">📞 {userDetails[restaurant.owner_id].phone_number}</p>
+                              )}
+                              
+                              {/* Owner information */}
+                              {userDetails[restaurant.owner_id]?.first_name && (
+                                <p className="text-sm text-gray-500 mt-1">
+                                  Contact: {userDetails[restaurant.owner_id].first_name} {userDetails[restaurant.owner_id].last_name}
+                                </p>
+                              )}
                             </div>
                           ) : (
                             <div className="flex items-center text-sm text-gray-500">
