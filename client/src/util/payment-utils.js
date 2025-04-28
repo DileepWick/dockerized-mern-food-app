@@ -2,11 +2,17 @@ import { paymentService } from "./service-gateways";
 
 export const createPaymentIntent = async (paymentData) => {
   try {
+    console.log('Creating payment intent with data:', paymentData);
     const response = await paymentService.post('/create-payment-intent', paymentData);
+    console.log('Payment intent creation response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error creating payment intent:', error);
-    throw error.response?.data || error;
+    // Return a standardized error format
+    return { 
+      success: false, 
+      message: error.response?.data?.message || error.message || 'Failed to create payment intent'
+    };
   }
 };
 
@@ -15,14 +21,22 @@ export const updatePaymentStatus = async (paymentId, status) => {
     // Add validation to prevent requests with null payment IDs
     if (!paymentId) {
       console.error('Cannot update payment status: payment ID is missing');
-      return { success: false, error: 'Payment ID is required to update status' };
+      return { 
+        success: false, 
+        error: 'Payment ID is required to update status' 
+      };
     }
     
+    console.log(`Updating payment ${paymentId} to status: ${status}`);
     const response = await paymentService.put(`/${paymentId}/status`, { status });
+    console.log('Payment status update response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error updating payment status:', error);
-    return { success: false, error: error.response?.data || error.message };
+    return { 
+      success: false, 
+      error: error.response?.data?.message || error.message || 'Failed to update payment status'
+    };
   }
 };
 
