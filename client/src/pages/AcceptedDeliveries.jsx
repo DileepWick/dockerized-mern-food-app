@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { getDeliveriesByDriverIdUtil, updateDeliveryStatusUtil } from "../util/delivery-utils";
 import { getLoggedInUser, getUserById } from "../util/auth-utils";
 import { fetchRestaurantById } from "../util/restaurant-utils";
+import { getOrderById, updateOrderStatusByDriver } from "../util/order-utils";
 
 // Imported Components
 import LoadingState from '../components/state/LoadingState';
@@ -116,6 +117,34 @@ const AcceptedDeliveries = () => {
       // Update delivery status
       const updatedDelivery = await updateDeliveryStatusUtil(delivery._id, newStatus);
       console.log("Delivery updated:", updatedDelivery);
+      
+      // Get the order ID (might be an object or just the ID string)
+      const orderId = typeof delivery.order_id === 'object' ? delivery.order_id._id : delivery.order_id;
+      
+      if (orderId) {
+        try {
+          // First, get the complete order object by ID
+          const orderObject = await getOrderById(orderId);
+          console.log("Fetched order object:", orderObject);
+          
+          if (orderObject && orderObject.order_id) {
+            // Update the order status using the order_id from the order object
+            console.log(`Updating order status using order_id: ${orderObject.order_id}`);
+            await updateOrderStatusByDriver(orderObject.order_id, newStatus);
+          } else {
+            // Fallback: Use the mongoDB _id if order_id is not available
+            console.log(`Order object does not have order_id, using _id: ${orderId}`);
+            await updateOrderStatusByDriver(orderId, newStatus);
+          }
+          
+          console.log(`Order status updated successfully`);
+        } catch (orderError) {
+          console.error(`Error updating order status for order ${orderId}:`, orderError);
+          // Continue with the delivery status update even if order update fails
+        }
+      } else {
+        console.warn(`No order ID found for delivery ${delivery._id}, skipping order status update`);
+      }
       
       // Update local state to reflect the change
       setDeliveries(deliveries.map(d => 
