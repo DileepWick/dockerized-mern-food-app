@@ -14,17 +14,8 @@ export const getUserOrders = async (statusFilter = null) => {
       url += `?status=${statusFilter}`;
     }
     
-    // Get the authentication token
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true // This ensures cookies are sent with the request
-    };
-    
-    const response = await axios.get(url, config);
+
+    const response = await axios.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching user orders:', error);
@@ -54,15 +45,7 @@ export const addOrderItem = async (orderId, menuItemId, quantity = 1) => {
     // Define the URL as a variable
     let url = `${orderService}/orders/${orderId}/add-item`;
     
-    // Get the authentication token
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true // This ensures cookies are sent with the request
-    };
+  
     
     const response = await axios.patch(
       url,
@@ -70,7 +53,6 @@ export const addOrderItem = async (orderId, menuItemId, quantity = 1) => {
         menu_item_id: menuItemId,
         quantity
       },
-      config
     );
     
     // Return the updated order so we can get the new order_item_id
@@ -84,21 +66,13 @@ export const addOrderItem = async (orderId, menuItemId, quantity = 1) => {
 // Remove an item from an existing order
 export const removeOrderItem = async (orderId, orderItemId) => {
   try {
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    };
+
     
     const response = await axios.patch(
       `${orderService}/orders/${orderId}/remove-item`,
       {
         order_item_id: orderItemId
       },
-      config
     );
     
     return response.data;
@@ -111,14 +85,7 @@ export const removeOrderItem = async (orderId, orderItemId) => {
 // Update the quantity of an item in an existing order
 export const updateItemQuantity = async (orderId, orderItemId, quantity) => {
   try {
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    };
+
     
     const response = await axios.patch(
       `${orderService}/orders/${orderId}/update-quantity`,
@@ -126,7 +93,6 @@ export const updateItemQuantity = async (orderId, orderItemId, quantity) => {
         order_item_id: orderItemId,
         quantity
       },
-      config
     );
     
     return response.data;
@@ -139,19 +105,11 @@ export const updateItemQuantity = async (orderId, orderItemId, quantity) => {
 // Confirm an order
 export const confirmOrder = async (orderId) => {
   try {
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    };
+
     
     const response = await axios.patch(
       `${orderService}/orders/${orderId}/confirm`,
       {},
-      config
     );
     
     return response.data;
@@ -174,16 +132,9 @@ export const getRestaurantOrders = async (restaurantId, statusFilter = null) => 
       
       console.log('Fetching orders from URL:', url);
       
-      const token = localStorage.getItem('authToken');
-      const config = {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      };
+
       
-      const response = await axios.get(url, config);
+      const response = await axios.get(url);
       console.log('Raw API response:', response);
       
       // Check the structure of the response
@@ -207,21 +158,13 @@ export const getRestaurantOrders = async (restaurantId, statusFilter = null) => 
 // Update order status
 export const updateOrderStatus = async (orderId, status) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const config = {
-        headers: {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      };
+
       
       console.log(`Updating order ${orderId} to status: ${status}`);
       
       const response = await axios.patch(
         `${orderService}/orders/${orderId}/status`,
         { status }, // Send status as is - already uppercase from the component
-        config
       );
       
       console.log('Status update response:', response.data);
@@ -273,18 +216,10 @@ export const getOrderById = async (orderId) => {
     // Define the URL to fetch the order by MongoDB _id
     const url = `${orderService}/orders/id/${orderId}`;
     
-    // Get the authentication token
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true // This ensures cookies are sent with the request
-    };
+
     
     // Make the API request
-    const response = await axios.get(url, config);
+    const response = await axios.get(url);
     
     console.log('Fetched order details:', response.data);
     return response.data;
