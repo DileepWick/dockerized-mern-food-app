@@ -14,6 +14,7 @@ import RestaurantForm from './pages/RestaurantForm';
 import UserPage from './pages/userPage';
 import SellerDashboard from './pages/sellerDashboard';
 import PaymentPage from './pages/PaymentPage';
+import AcceptedDeliveries from './pages/AcceptedDeliveries';
 
 
 import MyOrders from './pages/MyOrders';
@@ -64,6 +65,8 @@ function App() {
         <Route path='/DriverRegister' element={<DriverRegistrationForm />} />
 
         <Route path='/admin' element={<AdminDashboard />} />
+        <Route path='/acceptedDeliveries' element={<AcceptedDeliveries />} />
+
         
 
 

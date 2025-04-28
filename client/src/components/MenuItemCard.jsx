@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 const MenuItemCard = ({ item, onAddToCart }) => {
   return (
     <div className='bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 flex'>
-      <div className='w-24 h-24 bg-gray-200 flex-shrink-0'>
+      <div className='w-40 h-40 bg-gray-200 flex-shrink-0 rounded-lg'>
         {item.image_url ? (
           <img
             src={item.image_url}
@@ -19,18 +19,16 @@ const MenuItemCard = ({ item, onAddToCart }) => {
       </div>
 
       <div className='p-3 flex-1 flex flex-col justify-between'>
-        <div>
-          <h3 className='font-medium text-gray-900'>{item.name}</h3>
-          <p className='text-sm text-gray-500 line-clamp-2'>
-            {item.description}
-          </p>
+        <div className='flex flex-col gap-1'>
+          <h3 className='font-semibold text-gray-900'>{item.name}</h3>
+          <p className='font-light text-sm text-gray-600'>{item.description}</p>
         </div>
 
         <div className='flex justify-between items-center mt-2'>
-          <span className='font-semibold'>${item.price.toFixed(2)}</span>
+          <span className='font-semibold'>LKR {item.price.toFixed(2)}</span>
 
           <button
-            className='text-white bg-blue-600 rounded-full p-1 hover:bg-blue-700 transition-colors'
+            className='text-white bg-black rounded-full p-1 hover:bg-green-700 transition-colors'
             onClick={(e) => {
               e.stopPropagation();
               onAddToCart();

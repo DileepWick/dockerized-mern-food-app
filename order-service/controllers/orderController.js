@@ -6,14 +6,16 @@ import { getMenuItemDetails, getRestaurantDetails } from "../utils/menuService.j
 export const createOrder = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
+
+  console.log("User:", user);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
   if (user.role !== 'user') return res.status(403).json({ message: "Only users can place orders" });
 
+
+
   try {
     const {
-      owner_id,
       restaurant_id,
-      postal_code,
       items
     } = req.body;
 
@@ -21,20 +23,25 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: "Order must contain at least one item" });
     }
 
+
+
     // Validate restaurant_id by fetching restaurant details
-    try {
-      const restaurantDetails = await getRestaurantDetails(restaurant_id);
-      if (!restaurantDetails) {
+
+      const restaurantDetails2 = await getRestaurantDetails(restaurant_id);
+
+      if (!restaurantDetails2) {
         return res.status(400).json({ message: "Invalid restaurant ID" });
       }
-    } catch (error) {
-      return res.status(400).json({ message: "Invalid restaurant ID" });
-    }
+
+
+      const postal_code_of_restaurant = restaurantDetails2.postal_code;
+
 
     const order_id = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     
     // Process order items and validate with restaurant service
     const orderItems = [];
+    const menuItemDetails = []; // Store menu item details for later use
     let totalAmount = 0;
     
     for (const item of items) {
@@ -42,6 +49,8 @@ export const createOrder = async (req, res) => {
         // Fetch menu item details from restaurant service
         const menuItem = await getMenuItemDetails(item.menu_item_id);
         
+        menuItemDetails.push(menuItem) // Store menu item details for later use
+
         const orderItem = {
           order_item_id: `ITEM-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           menu_item_id: item.menu_item_id,
@@ -61,7 +70,7 @@ export const createOrder = async (req, res) => {
       order_id,
       user_id: user.userId,
       restaurant_id,
-      postal_code,
+      postal_code:postal_code_of_restaurant,
       total_amount: totalAmount,
       items: orderItems,
       status: 'PENDING',
@@ -69,11 +78,11 @@ export const createOrder = async (req, res) => {
       modification_deadline: new Date(Date.now() + 15 * 60000) // 15 minutes from now
     });
 
-    const restaurantDetails = await getRestaurantDetails(restaurant_id);
 
     res.status(201).json({
       orderDetails: order,
-      restaurant: restaurantDetails
+      restaurant: restaurantDetails2,
+      menuItems: menuItemDetails // Send menu item details back to the client
     });
     
   } catch (err) {
@@ -194,20 +203,41 @@ export const updateOrderStatus = async (req, res) => {
 export const getUserOrders = async (req, res) => {
   const token = req.cookies.token;
   const user = await validateToken(token);
-  if (!user) return res.status(401).json({ message: "Unauthorized" });
+  if (!user) return res.status(401).json({ message: "Unauthorized from getUserOrders" });
 
   try {
     // Find all orders for this user, sorted by most recent first
     const orders = await Order.find({ user_id: user.userId }).sort({ placed_at: -1 });
     
-    // For each order, fetch the restaurant details
+    // For each order, fetch the restaurant details and menu item details
     for (let i = 0; i < orders.length; i++) {
+      // Fetch restaurant details
       try {
         const restaurantDetails = await getRestaurantDetails(orders[i].restaurant_id);
         orders[i]._doc.restaurant = restaurantDetails;
       } catch (error) {
         console.error(`Error fetching restaurant details for order ${orders[i].order_id}:`, error);
         // Continue without restaurant details if there's an error
+      }
+      
+      // Fetch menu item details for each item in the order
+      if (orders[i].items && orders[i].items.length > 0) {
+        for (let j = 0; j < orders[i].items.length; j++) {
+          try {
+            const menuItemDetails = await getMenuItemDetails(orders[i].items[j].menu_item_id);
+            
+            // Add menu item name and image to the order item
+            orders[i].items[j]._doc = {
+              ...orders[i].items[j]._doc,
+              name: menuItemDetails.name,
+              image_url: menuItemDetails.image_url,
+              description: menuItemDetails.description
+            };
+          } catch (error) {
+            console.error(`Error fetching menu item details for item ${orders[i].items[j].menu_item_id}:`, error);
+            // Continue without menu item details if there's an error
+          }
+        }
       }
     }
     
@@ -238,11 +268,34 @@ export const getOrdersByRestaurant = async (req, res) => {
     }
     
     // Modified query to only show confirmed or later status orders
-    // The status flow is: 'PENDING', 'CONFIRMED', 'APPROVED', 'PREPARED', 'PICKED_UP', 'DELIVERED'
     const orders = await Order.find({ 
       restaurant_id: restaurantId,
       status: { $in: ['CONFIRMED', 'APPROVED', 'PREPARED', 'PICKED_UP', 'DELIVERED'] }
     }).sort({ placed_at: -1 });
+    
+    // For each order, fetch menu item details
+    for (let i = 0; i < orders.length; i++) {
+      if (orders[i].items && orders[i].items.length > 0) {
+        for (let j = 0; j < orders[i].items.length; j++) {
+          try {
+            const menuItemDetails = await getMenuItemDetails(orders[i].items[j].menu_item_id);
+            
+            // Add menu item name and image to the order item
+            orders[i].items[j]._doc = {
+              ...orders[i].items[j]._doc,
+              menu_item: {
+                name: menuItemDetails.name,
+                image_url: menuItemDetails.image_url,
+                description: menuItemDetails.description
+              }
+            };
+          } catch (error) {
+            console.error(`Error fetching menu item details for item ${orders[i].items[j].menu_item_id}:`, error);
+            // Continue without menu item details if there's an error
+          }
+        }
+      }
+    }
     
     const response = {
       restaurant: restaurantDetails,
@@ -261,26 +314,14 @@ export const getOrdersByPostalCode = async (req, res) => {
   const user = await validateToken(token);
   if (!user) return res.status(401).json({ message: "Unauthorized" });
   
-  // Remove this line to allow any authenticated user to access
-  // if (user.role !== 'driver') return res.status(403).json({ message: "Only drivers can access this endpoint" });
-
   try {
     const { postalCode } = req.params;
-    const { status } = req.query;
     
-    const query = { postal_code: postalCode };
-    
-    // Filter by status if provided
-    if (status) {
-      // Remove driver-specific status validation
-      // if (!['APPROVED', 'PREPARED', 'PICKED_UP'].includes(status)) {
-      //   return res.status(400).json({ message: "Invalid status filter for drivers" });
-      // }
-      query.status = status;
-    } else {
-      // Show all orders instead of only driver-ready ones
-      // query.status = { $in: ['APPROVED', 'PREPARED', 'PICKED_UP'] };
-    }
+    // Only fetch orders with status PREPARED
+    const query = { 
+      postal_code: postalCode,
+      status: 'PREPARED'
+    };
     
     const orders = await Order.find(query).sort({ placed_at: -1 });
     
@@ -557,4 +598,79 @@ export const confirmOrder = async (req, res) => {
 // Helper function to recalculate order total
 const recalculateOrderTotal = (items) => {
   return items.reduce((total, item) => total + item.total_price, 0);
+};
+
+//update order status by driver 
+export const updateOrderStatusByDriver = async (req, res) => {
+  const token = req.cookies.token;
+  const user = await validateToken(token);
+  if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const order = await Order.findOne({ order_id: req.params.orderId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Simply update the status to whatever was provided
+    order.status = req.body.status;
+    
+    await order.save();
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    res.status(500).json({ message: "Failed to update order status" });
+  }
+};
+
+
+//get order by id for driver
+
+
+export const getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    
+    // Find the order by MongoDB _id
+    const order = await Order.findById(orderId);
+    
+    // If order doesn't exist, return 404
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    
+    // Get restaurant details
+    try {
+      const restaurantDetails = await getRestaurantDetails(order.restaurant_id);
+      order._doc.restaurant = restaurantDetails;
+    } catch (error) {
+      console.error("Error fetching restaurant details:", error);
+      // Continue with order data even if restaurant details can't be fetched
+    }
+
+    // Get menu item details for each item in the order
+    if (order.items && order.items.length > 0) {
+      for (let i = 0; i < order.items.length; i++) {
+        try {
+          const menuItemDetails = await getMenuItemDetails(order.items[i].menu_item_id);
+          
+          // Add menu item name and image to the order item
+          order.items[i]._doc = {
+            ...order.items[i]._doc,
+            name: menuItemDetails.name,
+            image_url: menuItemDetails.image_url,
+            description: menuItemDetails.description
+          };
+        } catch (error) {
+          console.error(`Error fetching menu item details for item ${order.items[i].menu_item_id}:`, error);
+          // Continue without menu item details if there's an error
+        }
+      }
+    }
+
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Error fetching order by ID:", err);
+    res.status(500).json({ message: "Failed to fetch order" });
+  }
 };

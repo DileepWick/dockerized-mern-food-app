@@ -17,13 +17,10 @@ import { Loader2, ImagePlus } from 'lucide-react';
 
 const MENU_CATEGORIES = [
   { id: 'appetizers', name: 'Appetizers' },
-  { id: 'main_courses', name: 'Main Courses' },
+  { id: 'main courses', name: 'Main Courses' },
   { id: 'sides', name: 'Side Dishes' },
   { id: 'desserts', name: 'Desserts' },
   { id: 'beverages', name: 'Beverages' },
-  { id: 'specials', name: 'Chef Specials' },
-  { id: 'breakfast', name: 'Breakfast' },
-  { id: 'kids_menu', name: 'Kids Menu' },
 ];
 
 const MenuItemForm = ({ restaurantId, onItemAdded, onCancel }) => {

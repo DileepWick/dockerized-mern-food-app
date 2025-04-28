@@ -1,11 +1,22 @@
-// components/RestaurantCard.jsx
 import { Star, Clock, ChevronRight } from 'lucide-react';
 
 const RestaurantCard = ({ restaurant, onSelect }) => {
+  const isActive = restaurant.is_active;
+
+  const handleSelect = () => {
+    if (isActive) {
+      onSelect(restaurant);
+    }
+  };
+
   return (
     <div
-      className='bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow'
-      onClick={() => onSelect(restaurant)}
+      className={`bg-white rounded-lg shadow-md overflow-hidden transition-shadow ${
+        isActive
+          ? 'cursor-pointer hover:shadow-lg'
+          : 'opacity-50 cursor-not-allowed'
+      }`}
+      onClick={handleSelect}
     >
       <div className='h-40 bg-gray-300 relative'>
         {restaurant.cover_image ? (
@@ -19,7 +30,7 @@ const RestaurantCard = ({ restaurant, onSelect }) => {
             <span className='text-gray-500'>No Image</span>
           </div>
         )}
-        {restaurant.is_active ? (
+        {isActive ? (
           <span className='absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded'>
             Open
           </span>
@@ -35,10 +46,6 @@ const RestaurantCard = ({ restaurant, onSelect }) => {
           <h3 className='text-lg font-bold text-gray-900 truncate'>
             {restaurant.name}
           </h3>
-          <div className='flex items-center'>
-            <Star className='h-4 w-4 text-yellow-500' fill='#EAB308' />
-            <span className='text-sm ml-1'>4.8</span>
-          </div>
         </div>
 
         <p className='text-gray-600 text-sm mb-4 line-clamp-2'>
@@ -51,7 +58,14 @@ const RestaurantCard = ({ restaurant, onSelect }) => {
             <span>25-35 min</span>
           </div>
 
-          <button className='text-blue-600 flex items-center text-sm'>
+          <button
+            className={`flex items-center text-sm duration-300 ${
+              isActive
+                ? 'text-green-600 hover:text-green-800 cursor-pointer'
+                : 'text-gray-400 cursor-not-allowed'
+            }`}
+            disabled={!isActive}
+          >
             View Menu <ChevronRight className='h-4 w-4 ml-1' />
           </button>
         </div>

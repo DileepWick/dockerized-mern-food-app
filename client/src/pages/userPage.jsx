@@ -1,9 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Loader2, Search, ShoppingBag } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import {
+  Loader2,
+  Search,
+  ShoppingBag,
+  Coffee,
+  MapPin,
+  Star,
+  Send,
+  Instagram,
+  Facebook,
+  Twitter,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getLoggedInUser } from '../util/auth-utils';
 import { restaurantService, menuService } from '../util/service-gateways';
 import { createOrder, addOrderItem } from '../util/order-utils';
+import gsap from 'gsap';
 
 // Imported Components
 import Header from '../components/Header';
@@ -11,6 +23,311 @@ import RestaurantCard from '../components/RestaurantCard';
 import MenuItemCard from '../components/MenuItemCard';
 import LoadingState from '../components/state/LoadingState';
 import ErrorState from '../components/state/ErrorState';
+
+// New Feature Components
+const AnimatedBanner = () => {
+  const bannerRef = useRef(null);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    const banner = bannerRef.current;
+    const text = textRef.current;
+
+    gsap.fromTo(
+      banner,
+      { opacity: 0, y: -50 },
+      { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }
+    );
+
+    gsap.fromTo(
+      text,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: 'back.out' }
+    );
+  }, []);
+
+  return (
+    <div
+      ref={bannerRef}
+      className='bg-gradient-to-r from-orange-400 to-red-500 text-white p-8 rounded-xl mb-10 shadow-lg relative overflow-hidden'
+    >
+      <div className='absolute right-0 top-0 h-full w-1/2 bg-white opacity-10 transform -skew-x-12'></div>
+      <div ref={textRef} className='relative z-10'>
+        <h1 className='text-3xl font-bold mb-2'>
+          Hungry? We've got you covered!
+        </h1>
+        <p className='text-white/80'>
+          Discover delicious food from restaurants in your neighborhood.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const FoodCategoryChips = ({ onCategorySelect, activeCategory }) => {
+  const categories = [
+    'All',
+    'MAIN COURSES',
+    'BEVERAGES',
+    'SIDES',
+    'APPETIZERS',
+    'DESSERT',
+  ];
+  const chipContainerRef = useRef(null);
+
+  useEffect(() => {
+    const chips = chipContainerRef.current.children;
+    gsap.fromTo(
+      chips,
+      { opacity: 0, y: 20 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: 'power2.out',
+      }
+    );
+  }, []);
+
+  return (
+    <div
+      ref={chipContainerRef}
+      className='flex gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide'
+    >
+      {categories.map((category) => (
+        <button
+          key={category}
+          onClick={() => onCategorySelect(category)}
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+            activeCategory === category
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'bg-white text-gray-700 hover:bg-gray-100 border'
+          }`}
+        >
+          {category}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const FloatingCartButton = ({ count, onClick, total }) => {
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    if (count > 0) {
+      gsap.fromTo(
+        buttonRef.current,
+        { scale: 0.8 },
+        { scale: 1.1, duration: 0.3, yoyo: true, repeat: 1 }
+      );
+    }
+  }, [count]);
+
+  if (count === 0) return null;
+
+  return (
+    <button
+      ref={buttonRef}
+      onClick={onClick}
+      className='fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg flex items-center gap-3 hover:bg-blue-700 transition-colors z-30'
+    >
+      <ShoppingBag className='w-6 h-6' />
+      <div>
+        <span className='font-bold'>{count} items</span>
+        <p className='text-xs text-blue-100'>${total.toFixed(2)}</p>
+      </div>
+    </button>
+  );
+};
+
+const Footer = () => {
+  const footerRef = useRef(null);
+
+  useEffect(() => {
+    const footer = footerRef.current;
+
+    const onScroll = () => {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.body.scrollHeight;
+
+      // Check if user is near the bottom of the page
+      if (scrollPosition > documentHeight - windowHeight - 200) {
+        gsap.to(footer, {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          ease: 'power2.out',
+        });
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <footer
+      ref={footerRef}
+      className='bg-stone-900 text-white mt-20 py-12 opacity-0 transform translate-y-10'
+    >
+      <div className='max-w-7xl mx-auto px-4'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-10'>
+          <div>
+            <h3 className='text-xl font-bold mb-4'>SnapByte</h3>
+            <p className='text-gray-400 mb-6'>
+              &quot;From hungry to happy in just a few clicks.&quot;
+            </p>
+            <div className='flex space-x-4'>
+              <a
+                href='#'
+                className='text-gray-400 hover:text-white transition-colors'
+              >
+                <Instagram />
+              </a>
+              <a
+                href='#'
+                className='text-gray-400 hover:text-white transition-colors'
+              >
+                <Facebook />
+              </a>
+              <a
+                href='#'
+                className='text-gray-400 hover:text-white transition-colors'
+              >
+                <Twitter />
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h3 className='text-lg font-semibold mb-4'>Quick Links</h3>
+            <ul className='space-y-2'>
+              <li>
+                <a
+                  href='#'
+                  className='text-gray-400 hover:text-white transition-colors'
+                >
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href='#'
+                  className='text-gray-400 hover:text-white transition-colors'
+                >
+                  Help & Support
+                </a>
+              </li>
+              <li>
+                <a
+                  href='#'
+                  className='text-gray-400 hover:text-white transition-colors'
+                >
+                  Become a Partner
+                </a>
+              </li>
+              <li>
+                <a
+                  href='#'
+                  className='text-gray-400 hover:text-white transition-colors'
+                >
+                  Careers
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className='text-lg font-semibold mb-4'>
+              Subscribe to Our Newsletter
+            </h3>
+            <div className='flex'>
+              <input
+                type='email'
+                placeholder='Your email'
+                className='bg-stone-800 text-white px-4 py-2 rounded-l-md w-full focus:outline-none'
+              />
+              <button className='bg-stone-600 px-4 py-2 rounded-r-md hover:bg-stone-700 transition-colors'>
+                <Send size={18} />
+              </button>
+            </div>
+            <p className='text-gray-500 text-sm mt-2'>
+              Get exclusive offers and updates.
+            </p>
+          </div>
+        </div>
+
+        <div className='border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm'>
+          <p>© {new Date().getFullYear()} SnapByte. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+const RestaurantHighlight = ({ restaurant }) => {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    gsap.fromTo(
+      containerRef.current,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+    );
+  }, []);
+
+  if (!restaurant) return null;
+
+  return (
+    <div
+      ref={containerRef}
+      className='bg-white rounded-lg overflow-hidden shadow-lg mb-12 flex flex-col md:flex-row'
+    >
+      <div className='w-full md:w-2/5 bg-gray-300 h-64 relative'>
+        <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6 text-white'>
+          <h3 className='text-2xl font-bold'>{restaurant.name}</h3>
+          <div className='flex items-center gap-2 text-yellow-300 mt-1'>
+            <Star className='fill-current' size={16} />
+            <Star className='fill-current' size={16} />
+            <Star className='fill-current' size={16} />
+            <Star className='fill-current' size={16} />
+            <Star className='fill-current text-yellow-300/40' size={16} />
+            <span className='text-white text-sm'>(120+ ratings)</span>
+          </div>
+        </div>
+      </div>
+      <div className='p-6 flex-1'>
+        <div className='flex items-center text-sm text-gray-500 mb-3'>
+          <MapPin size={16} className='mr-1' />
+          <span>
+            {restaurant.address?.street}, {restaurant.postal_code}
+          </span>
+        </div>
+        <p className='text-gray-600 mb-4'>{restaurant.description}</p>
+        <div className='flex gap-2 mb-4 flex-wrap'>
+          {['Fast Delivery', 'Top Rated', 'Trending'].map((tag) => (
+            <span
+              key={tag}
+              className='bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full'
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div className='flex justify-end'>
+          <button className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2'>
+            <Coffee size={16} />
+            View Menu
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -25,6 +342,44 @@ const UserPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [featuredRestaurant, setFeaturedRestaurant] = useState(null);
+
+  // GSAP animation refs
+  const pageContentRef = useRef(null);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    // Apply entrance animations when page loads
+    if (pageContentRef.current) {
+      gsap.fromTo(
+        pageContentRef.current.children,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.15,
+          ease: 'power2.out',
+        }
+      );
+    }
+
+    // Subtle animation for the search input
+    if (searchRef.current) {
+      gsap.fromTo(
+        searchRef.current,
+        { width: '80%', opacity: 0 },
+        {
+          width: '100%',
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: 0.3,
+        }
+      );
+    }
+  }, [loading]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,6 +407,15 @@ const UserPage = () => {
           );
 
           setRestaurants(nearbyRestaurants);
+
+          // Set a featured restaurant
+          if (nearbyRestaurants.length > 0) {
+            setFeaturedRestaurant(
+              nearbyRestaurants[
+                Math.floor(Math.random() * nearbyRestaurants.length)
+              ]
+            );
+          }
         } catch (restaurantError) {
           console.error('Error fetching restaurants:', restaurantError);
           setError('Failed to load restaurants. Please try again later.');
@@ -211,6 +575,10 @@ const UserPage = () => {
     }
   };
 
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+  };
+
   const filteredRestaurants = searchQuery
     ? restaurants.filter(
         (restaurant) =>
@@ -221,17 +589,21 @@ const UserPage = () => {
       )
     : restaurants;
 
-  const filteredMenuItems =
-    searchQuery && selectedRestaurant
-      ? menuItems.filter(
-          (item) =>
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.description
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()) ||
-            item.category.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      : menuItems;
+  const filteredMenuItems = menuItems.filter((item) => {
+    // Apply both search query and category filter
+    const matchesSearch = searchQuery
+      ? item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    const matchesCategory =
+      selectedCategory === 'All'
+        ? true
+        : item.category.toLowerCase() === selectedCategory.toLowerCase();
+
+    return matchesSearch && matchesCategory;
+  });
 
   const cartTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -258,22 +630,25 @@ const UserPage = () => {
   }
 
   return (
-    <div className='bg-gray-50 min-h-screen poppins-regular'>
+    <div className='bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen poppins-regular'>
       <Header
         user={user}
         cartCount={cart.reduce((total, item) => total + item.quantity, 0)}
         onCartClick={handleCartClick}
       />
 
-      <div className='max-w-7xl mx-auto px-4 py-6'>
-        {/* Search Bar */}
-        <div className='relative mb-6'>
+      <div className='max-w-7xl mx-auto px-4 py-6' ref={pageContentRef}>
+        {/* Welcome Banner */}
+        <AnimatedBanner />
+
+        {/* Search Bar with Animation */}
+        <div className='relative mb-10' ref={searchRef}>
           <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
             <Search className='w-5 h-5 text-gray-400' />
           </div>
           <input
             type='text'
-            className='bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5'
+            className='bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-4 shadow-sm'
             placeholder='Search restaurants or food...'
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -283,21 +658,27 @@ const UserPage = () => {
         <div className='flex flex-col'>
           <div className='w-full'>
             {selectedRestaurant ? (
-              <div>
-                <div className='flex justify-center items-center mb-4 gap-4'>
-                  <h2 className='text-2xl font-bold'>
+              <div className='border p-10 rounded-2xl bg-white shadow-xl'>
+                <div className='flex justify-between items-center mb-4 gap-4'>
+                  <h2 className='text-3xl font-bold'>
                     {selectedRestaurant.name}
                   </h2>
                   <button
                     onClick={() => setSelectedRestaurant(null)}
-                    className='text-sm text-blue-600 hover:text-blue-800'
+                    className='text-sm text-white bg-black border px-5 py-3 rounded-full cursor-pointer hover:bg-white hover:text-black hover:border-black transition-all duration-300'
                   >
                     Back to restaurants
                   </button>
                 </div>
-                <p className='text-gray-600 mb-6'>
+                <p className='text-gray-600 mb-10'>
                   {selectedRestaurant.description}
                 </p>
+
+                {/* Category Filter Chips */}
+                <FoodCategoryChips
+                  onCategorySelect={handleCategorySelect}
+                  activeCategory={selectedCategory}
+                />
 
                 {menuLoading ? (
                   <div className='flex justify-center py-12'>
@@ -316,8 +697,8 @@ const UserPage = () => {
                             filteredMenuItems.map((item) => item.category)
                           ),
                         ].map((category) => (
-                          <div key={category} className='mb-8'>
-                            <h3 className='text-xl font-semibold mb-4 border-b pb-2'>
+                          <div key={category} className='mb-10'>
+                            <h3 className='text-xl font-semibold mb-10 border-b pb-2 uppercase'>
                               {category}
                             </h3>
                             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
@@ -364,6 +745,13 @@ const UserPage = () => {
         </div>
       </div>
 
+      {/* Floating Cart Button */}
+      <FloatingCartButton
+        count={cart.reduce((total, item) => total + item.quantity, 0)}
+        onClick={handleCartClick}
+        total={cartTotal}
+      />
+
       {/* Cart Modal */}
       {isCartOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center'>
@@ -390,7 +778,7 @@ const UserPage = () => {
                     <div>
                       <p className='font-medium'>{item.name}</p>
                       <p className='text-sm text-gray-500'>
-                        {item.quantity} × ${item.price.toFixed(2)}
+                        {item.quantity} × LKR {item.price.toFixed(2)}
                       </p>
                     </div>
                     <div className='flex items-center gap-2'>
@@ -411,7 +799,7 @@ const UserPage = () => {
                   </div>
                 ))}
                 <div className='border-t pt-4 font-semibold text-right'>
-                  Total: ${cartTotal.toFixed(2)}
+                  Total: LKR {cartTotal.toFixed(2)}
                 </div>
                 <div className='flex justify-end'>
                   <button
@@ -429,6 +817,9 @@ const UserPage = () => {
           </div>
         </div>
       )}
+
+      {/* Footer with Tagline */}
+      <Footer />
     </div>
   );
 };

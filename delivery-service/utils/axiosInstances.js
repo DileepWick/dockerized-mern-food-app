@@ -6,9 +6,14 @@ const authService = axios.create({
   withCredentials: true, 
 });
 
+const orderService = axios.create({
+  baseURL: "http://localhost:3003/api",
+  withCredentials: true,
+});
 
 
 
 
 
-export {authService};
+
+export {authService,orderService};

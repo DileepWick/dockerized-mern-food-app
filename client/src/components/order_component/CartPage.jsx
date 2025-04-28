@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { Loader2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getLoggedInUser } from '../../util/auth-utils';
-import { confirmOrder, updateItemQuantity, removeOrderItem } from '../../util/order-utils';
+import {
+  confirmOrder,
+  updateItemQuantity,
+  removeOrderItem,
+} from '../../util/order-utils';
 import Header from '../Header';
 import LoadingState from '../state/LoadingState';
 import ErrorState from '../state/ErrorState';
@@ -32,7 +36,7 @@ const CartPage = () => {
         // Get cart from localStorage
         const storedCart = localStorage.getItem('currentCart');
         const storedOrder = localStorage.getItem('currentOrder');
-        
+
         if (storedCart && storedOrder) {
           setCart(JSON.parse(storedCart));
           setCurrentOrder(JSON.parse(storedOrder));
@@ -52,7 +56,7 @@ const CartPage = () => {
   const handleQuantityChange = async (item, change) => {
     try {
       const newQuantity = item.quantity + change;
-      
+
       if (newQuantity <= 0) {
         // Remove item if quantity becomes 0
         if (!item.order_item_id) {
@@ -60,9 +64,14 @@ const CartPage = () => {
           setError('Unable to remove item: missing item ID');
           return;
         }
-        
-        await removeOrderItem(currentOrder.orderDetails.order_id, item.order_item_id);
-        const updatedCart = cart.filter(cartItem => cartItem._id !== item._id);
+
+        await removeOrderItem(
+          currentOrder.orderDetails.order_id,
+          item.order_item_id
+        );
+        const updatedCart = cart.filter(
+          (cartItem) => cartItem._id !== item._id
+        );
         setCart(updatedCart);
         localStorage.setItem('currentCart', JSON.stringify(updatedCart));
       } else {
@@ -72,10 +81,14 @@ const CartPage = () => {
           setError('Unable to update item: missing item ID');
           return;
         }
-        
-        await updateItemQuantity(currentOrder.orderDetails.order_id, item.order_item_id, newQuantity);
-        const updatedCart = cart.map(cartItem => 
-          cartItem._id === item._id 
+
+        await updateItemQuantity(
+          currentOrder.orderDetails.order_id,
+          item.order_item_id,
+          newQuantity
+        );
+        const updatedCart = cart.map((cartItem) =>
+          cartItem._id === item._id
             ? { ...cartItem, quantity: newQuantity }
             : cartItem
         );
@@ -91,19 +104,23 @@ const CartPage = () => {
   const handleCheckout = async () => {
     try {
       setProcessing(true);
-      
-      if (!currentOrder || !currentOrder.orderDetails || !currentOrder.orderDetails.order_id) {
+
+      if (
+        !currentOrder ||
+        !currentOrder.orderDetails ||
+        !currentOrder.orderDetails.order_id
+      ) {
         setError('Invalid order data. Please try again.');
         setProcessing(false);
         return;
       }
-      
+
       await confirmOrder(currentOrder.orderDetails.order_id);
-      
+
       // Clear cart data
       localStorage.removeItem('currentCart');
       localStorage.removeItem('currentOrder');
-      
+
       // Redirect to orders page
       navigate('/MyOrders');
     } catch (error) {
@@ -127,29 +144,31 @@ const CartPage = () => {
   }
 
   return (
-    <div className='bg-gray-50 min-h-screen poppins-regular'>
+    <div className='w-screen bg-gray-50 min-h-screen poppins-regular'>
       <Header
         user={user}
         cartCount={cart.reduce((total, item) => total + item.quantity, 0)}
       />
 
-      <div className='max-w-4xl mx-auto px-4 py-6'>
-        <div className='flex items-center mb-6'>
-          <button 
+      <div className='mx-30 px-4 py-10 rounded-4xl shadow min-h-auto overflow-y-auto bg-white'>
+        <div className='flex justify-between mb-6 px-4'>
+          <h1 className='text-2xl font-bold ml-4 uppercase'>Your Cart</h1>{' '}
+          <button
             onClick={() => navigate(-1)}
             className='flex items-center text-blue-600 hover:text-blue-800'
           >
             <ArrowLeft className='h-5 w-5 mr-1' />
             Back
           </button>
-          <h1 className='text-2xl font-bold ml-4'>Your Cart</h1>
         </div>
 
         {cart.length === 0 ? (
           <div className='bg-white rounded-lg shadow p-8 text-center'>
             <ShoppingBag className='h-12 w-12 mx-auto text-gray-400 mb-4' />
             <h2 className='text-xl font-medium mb-2'>Your cart is empty</h2>
-            <p className='text-gray-500 mb-6'>Looks like you haven't added any items yet.</p>
+            <p className='text-gray-500 mb-6'>
+              Looks like you haven't added any items yet.
+            </p>
             <button
               onClick={() => navigate('/userPage')}
               className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700'
@@ -158,19 +177,24 @@ const CartPage = () => {
             </button>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 px-4'>
             <div className='md:col-span-2'>
               <div className='bg-white rounded-lg shadow overflow-hidden'>
-                <div className='p-4 border-b'>
-                  <h2 className='text-lg font-medium'>Order Items</h2>
+                <div className='p-4 border-b bg-stone-100'>
+                  <h2 className='text-lg font-medium uppercase'>Order Items</h2>
                 </div>
                 <div className='divide-y'>
                   {cart.map((item) => (
-                    <div key={item._id} className='p-4 flex items-center justify-between'>
+                    <div
+                      key={item._id}
+                      className='p-4 flex items-center justify-between'
+                    >
                       <div className='flex items-center space-x-4'>
                         <div>
                           <h3 className='font-medium'>{item.name}</h3>
-                          <p className='text-sm text-gray-500'>${item.price.toFixed(2)}</p>
+                          <p className='text-sm text-gray-500'>
+                            LKR {item.price.toFixed(2)}
+                          </p>
                         </div>
                       </div>
                       <div className='flex items-center space-x-3'>
@@ -199,15 +223,15 @@ const CartPage = () => {
                 <div className='space-y-3 mb-4'>
                   <div className='flex justify-between'>
                     <span>Subtotal</span>
-                    <span>${cartTotal.toFixed(2)}</span>
+                    <span>LKR {cartTotal.toFixed(2)}</span>
                   </div>
                   <div className='flex justify-between'>
                     <span>Delivery Fee</span>
-                    <span>$3.99</span>
+                    <span>LKR 200.00</span>
                   </div>
                   <div className='border-t pt-3 font-medium flex justify-between'>
                     <span>Total</span>
-                    <span>${(cartTotal + 3.99).toFixed(2)}</span>
+                    <span>LKR {(cartTotal + 200).toFixed(2)}</span>
                   </div>
                 </div>
                 <button
