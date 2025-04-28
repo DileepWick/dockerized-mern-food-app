@@ -7,7 +7,7 @@ services:
     init: true
     env_file: ./restaurant-service/.env
     ports:
-      - "3001:3001"  # Expose on 3001 to avoid port conflicts
+      - "3005:3005"  # Expose on 3001 to avoid port conflicts
     networks:
       - backend
 
@@ -25,6 +25,7 @@ services:
     depends_on:
       - restaurant-service
       - auth-service
+      - api-gateway-service
 
 
   auth-service:
@@ -39,6 +40,17 @@ services:
     networks:
       - backend
 
+  api-gateway-service:
+    build:
+      context: ./api-gateway-service
+      dockerfile: ../api-gateway-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./api-gateway-service/.env
+    ports:
+      - "3007:3007"
+    networks:
+      - backend
 
 
 networks:
