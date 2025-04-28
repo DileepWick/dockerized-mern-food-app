@@ -3,16 +3,31 @@ import { deliveryService } from './service-gateways.js';
 export const createVehicle = async (driverId, vehicleType, licensePlate) => {
   try {
     console.log("Creating vehicle for driver:", driverId); // Debug log
+    
+    // Normalize license plate (trim and uppercase) before sending to API
+    const normalizedLicensePlate = licensePlate.trim().toUpperCase();
+    
     const response = await deliveryService.post('/createVehicle', {
       driverId,
       vehicleType,
-      licensePlate
+      licensePlate: normalizedLicensePlate
     });
+    
     console.log("Vehicle created successfully:", response.data); // Debug log
-    return response.data; // Returns the created vehicle
+    return {
+      success: true,
+      data: response.data,
+      message: "Vehicle created successfully"
+    };
   } catch (error) {
-    console.error("Create vehicle error:", error.response?.data?.message || error.message); // Error logging
-    return null; // In case of error, return null
+    const errorMessage = error.response?.data?.message || error.message;
+    console.error("Create vehicle error:", errorMessage); // Error logging
+    
+    return {
+      success: false,
+      data: null,
+      message: errorMessage || "Failed to create vehicle" 
+    };
   }
 };
 
