@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { getDeliveriesByDriverIdUtil, updateDeliveryStatusUtil } from "../util/delivery-utils";
 import { getLoggedInUser, getUserById } from "../util/auth-utils";
 import { fetchRestaurantById } from "../util/restaurant-utils";
+import { getOrderById, updateOrderStatusByDriver } from "../util/order-utils";
 
 // Imported Components
 import LoadingState from '../components/state/LoadingState';
@@ -51,30 +52,29 @@ const AcceptedDeliveries = () => {
         const userData = {};
         
         for (const delivery of fetchedDeliveries || []) {
-          // Get order details from the populated order field
-          const order = delivery.order_id;
+          // Handle both direct restaurant_id and nested order.restaurant_id
+          const restaurantId = delivery.restaurant_id || (delivery.order_id && delivery.order_id.restaurant_id);
+          const userId = delivery.order_id && delivery.order_id.user_id;
           
-          if (!order) continue;
-          
-          // Fetch restaurant details
-          if (order.restaurant_id && !restaurantData[order.restaurant_id]) {
+          // Fetch restaurant details if we have a restaurantId
+          if (restaurantId && !restaurantData[restaurantId]) {
             try {
-              const restaurant = await fetchRestaurantById(order.restaurant_id);
-              restaurantData[order.restaurant_id] = restaurant;
+              const restaurant = await fetchRestaurantById(restaurantId);
+              restaurantData[restaurantId] = restaurant;
             } catch (restaurantErr) {
-              console.error(`Error fetching restaurant ${order.restaurant_id}:`, restaurantErr);
-              restaurantData[order.restaurant_id] = null;
+              console.error(`Error fetching restaurant ${restaurantId}:`, restaurantErr);
+              restaurantData[restaurantId] = null;
             }
           }
           
-          // Fetch buyer details
-          if (order.user_id && !userData[order.user_id]) {
+          // Fetch buyer details if we have a userId
+          if (userId && !userData[userId]) {
             try {
-              const buyerData = await getUserById(order.user_id);
-              userData[order.user_id] = buyerData?.user || null;
+              const buyerData = await getUserById(userId);
+              userData[userId] = buyerData?.user || null;
             } catch (buyerErr) {
-              console.error(`Error fetching buyer ${order.user_id}:`, buyerErr);
-              userData[order.user_id] = null;
+              console.error(`Error fetching buyer ${userId}:`, buyerErr);
+              userData[userId] = null;
             }
           }
         }
@@ -117,6 +117,34 @@ const AcceptedDeliveries = () => {
       // Update delivery status
       const updatedDelivery = await updateDeliveryStatusUtil(delivery._id, newStatus);
       console.log("Delivery updated:", updatedDelivery);
+      
+      // Get the order ID (might be an object or just the ID string)
+      const orderId = typeof delivery.order_id === 'object' ? delivery.order_id._id : delivery.order_id;
+      
+      if (orderId) {
+        try {
+          // First, get the complete order object by ID
+          const orderObject = await getOrderById(orderId);
+          console.log("Fetched order object:", orderObject);
+          
+          if (orderObject && orderObject.order_id) {
+            // Update the order status using the order_id from the order object
+            console.log(`Updating order status using order_id: ${orderObject.order_id}`);
+            await updateOrderStatusByDriver(orderObject.order_id, newStatus);
+          } else {
+            // Fallback: Use the mongoDB _id if order_id is not available
+            console.log(`Order object does not have order_id, using _id: ${orderId}`);
+            await updateOrderStatusByDriver(orderId, newStatus);
+          }
+          
+          console.log(`Order status updated successfully`);
+        } catch (orderError) {
+          console.error(`Error updating order status for order ${orderId}:`, orderError);
+          // Continue with the delivery status update even if order update fails
+        }
+      } else {
+        console.warn(`No order ID found for delivery ${delivery._id}, skipping order status update`);
+      }
       
       // Update local state to reflect the change
       setDeliveries(deliveries.map(d => 
@@ -207,9 +235,18 @@ const AcceptedDeliveries = () => {
         ) : (
           <div className="space-y-6">
             {filteredDeliveries.map((delivery) => {
-              const order = delivery.order_id;
-              const restaurant = order?.restaurant_id ? restaurantDetails[order.restaurant_id] : null;
-              const buyer = order?.user_id ? userDetails[order.user_id] : null;
+              // Get restaurant ID either directly from delivery or from the order
+              const restaurantId = delivery.restaurant_id || 
+                (delivery.order_id && typeof delivery.order_id === 'object' ? delivery.order_id.restaurant_id : null);
+              
+              // Get user ID from the order if it's an object
+              const userId = delivery.order_id && typeof delivery.order_id === 'object' ? delivery.order_id.user_id : null;
+              
+              // Get the actual order ID value (might be an object or just the ID string)
+              const orderId = typeof delivery.order_id === 'object' ? delivery.order_id._id : delivery.order_id;
+              
+              const restaurant = restaurantId ? restaurantDetails[restaurantId] : null;
+              const buyer = userId ? userDetails[userId] : null;
               const isProcessing = processingDeliveryId === delivery._id;
               
               return (
@@ -219,9 +256,16 @@ const AcceptedDeliveries = () => {
                     <div className="flex items-center">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">{restaurant?.name || "Restaurant"}</h3>
-                        <p className="text-sm text-gray-500">
-                          Delivery #{delivery._id.substring(0, 8)} • {formatDate(delivery.assigned_at || delivery.createdAt || new Date())}
-                        </p>
+                        <div className="flex flex-col sm:flex-row sm:space-x-4">
+                          <p className="text-sm text-gray-500">
+                            Delivery #{delivery._id.substring(0, 8)} • {formatDate(delivery.assigned_at || delivery.createdAt || new Date())}
+                          </p>
+                          {orderId && (
+                            <p className="text-sm text-gray-500">
+                              Order ID: {typeof orderId === 'string' ? orderId.substring(0, 8) : 'N/A'}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -248,6 +292,7 @@ const AcceptedDeliveries = () => {
                           {restaurant ? (
                             <div className="text-gray-800">
                               <p className="font-medium">{restaurant.name}</p>
+                              <p className="text-xs text-gray-500">Restaurant ID: {restaurantId?.substring(0, 8)}</p>
                               {delivery.restaurant_address?.street && <p className="text-sm">{delivery.restaurant_address.street}</p>}
                               {delivery.restaurant_address?.city && (
                                 <p className="text-sm">
@@ -259,6 +304,7 @@ const AcceptedDeliveries = () => {
                             </div>
                           ) : (
                             <div className="text-sm text-gray-500">
+                              {restaurantId && <p className="text-xs">Restaurant ID: {restaurantId?.substring(0, 8)}</p>}
                               {delivery.restaurant_address?.street && <p>{delivery.restaurant_address.street}</p>}
                               {delivery.restaurant_address?.city && (
                                 <p>
@@ -321,7 +367,10 @@ const AcceptedDeliveries = () => {
                             <div className="pt-2 mt-2 border-t border-gray-200 flex justify-between">
                               <span className="font-medium">Total</span>
                               <span className="font-bold">₹{
-                                delivery.items?.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0).toFixed(2) || '0.00'
+                                // Use the total_amount field if available, otherwise calculate from items
+                                (delivery.total_amount ? 
+                                  delivery.total_amount.toFixed(2) : 
+                                  delivery.items?.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0).toFixed(2)) || '0.00'
                               }</span>
                             </div>
                           </div>

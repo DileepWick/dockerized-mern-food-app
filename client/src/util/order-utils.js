@@ -275,3 +275,35 @@ export const updateOrderStatusByDriver = async (orderId, status) => {
   }
 };
 
+
+export const getOrderById = async (orderId) => {
+  try {
+    // Define the URL to fetch the order by MongoDB _id
+    const url = `http://localhost:3007/api/order/orders/id/${orderId}`;
+    
+    // Get the authentication token
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true // This ensures cookies are sent with the request
+    };
+    
+    // Make the API request
+    const response = await axios.get(url, config);
+    
+    console.log('Fetched order details:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching order by MongoDB _id:', error);
+    // Provide more detailed error logging
+    if (error.response) {
+      console.error('Response error data:', error.response.data);
+      console.error('Response error status:', error.response.status);
+    }
+    throw error;
+  }
+};
+

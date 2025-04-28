@@ -622,3 +622,55 @@ export const updateOrderStatusByDriver = async (req, res) => {
     res.status(500).json({ message: "Failed to update order status" });
   }
 };
+
+
+//get order by id for driver
+
+
+export const getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    
+    // Find the order by MongoDB _id
+    const order = await Order.findById(orderId);
+    
+    // If order doesn't exist, return 404
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    
+    // Get restaurant details
+    try {
+      const restaurantDetails = await getRestaurantDetails(order.restaurant_id);
+      order._doc.restaurant = restaurantDetails;
+    } catch (error) {
+      console.error("Error fetching restaurant details:", error);
+      // Continue with order data even if restaurant details can't be fetched
+    }
+
+    // Get menu item details for each item in the order
+    if (order.items && order.items.length > 0) {
+      for (let i = 0; i < order.items.length; i++) {
+        try {
+          const menuItemDetails = await getMenuItemDetails(order.items[i].menu_item_id);
+          
+          // Add menu item name and image to the order item
+          order.items[i]._doc = {
+            ...order.items[i]._doc,
+            name: menuItemDetails.name,
+            image_url: menuItemDetails.image_url,
+            description: menuItemDetails.description
+          };
+        } catch (error) {
+          console.error(`Error fetching menu item details for item ${order.items[i].menu_item_id}:`, error);
+          // Continue without menu item details if there's an error
+        }
+      }
+    }
+
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Error fetching order by ID:", err);
+    res.status(500).json({ message: "Failed to fetch order" });
+  }
+};

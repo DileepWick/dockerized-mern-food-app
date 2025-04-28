@@ -16,6 +16,19 @@ const deliverySchema = new Schema({
     required: true
   },
 
+  // Restaurant reference - Added field
+  restaurant_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'Restaurant',
+    required: true
+  },
+
+  // Total amount - Added field
+  total_amount: {
+    type: Number,
+    required: true
+  },
+
   // Buyer information
   buyer_address: {
     street: String,

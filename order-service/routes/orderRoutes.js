@@ -12,7 +12,8 @@ import {
   updateItemQuantity,
   confirmOrder,
   getUserOrders,
-  updateOrderStatusByDriver
+  updateOrderStatusByDriver,
+  getOrderById
 } from '../controllers/orderController.js';
 
 const router = express.Router();
@@ -38,5 +39,6 @@ router.get('/restaurants/:restaurantId/orders', getOrdersByRestaurant);
 // Driver routes
 router.get('/orders/postal-code/:postalCode', getOrdersByPostalCode);
 router.patch('/orders/:orderId/driver-status', updateOrderStatusByDriver);
+router.get('/orders/id/:id', getOrderById);
 
 export default router;
