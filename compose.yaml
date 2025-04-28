@@ -38,6 +38,9 @@ services:
       - restaurant-service
       - auth-service
       - api-gateway-service
+      - delivery-service
+      - payment-service
+      - order-service
 
 
   auth-service:
