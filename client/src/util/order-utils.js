@@ -35,20 +35,11 @@ export const getUserOrders = async (statusFilter = null) => {
 // Create a new order
 export const createOrder = async (restaurantId, items) => {
   try {
-    let url = `${orderService}/orders`;
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    };
 
-    const response = await axios.post(url, {
+    const response = await orderService.post('/orders',{
       restaurant_id: restaurantId,
       items
-    }, config);
+    });
 
     return response.data;  // FULL response, not just orderDetails
   } catch (error) {
