@@ -52,6 +52,30 @@ services:
     networks:
       - backend
 
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: ../delivery-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./delivery-service/.env
+    ports:
+      - "3001:3001"
+    networks:
+      - backend
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: ../payment-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./payment-service/.env
+    ports:
+      - "3004:3004"
+    networks:
+      - backend
+
 
 networks:
   backend:
