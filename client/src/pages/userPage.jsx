@@ -179,7 +179,7 @@ const Footer = () => {
           <div>
             <h3 className='text-xl font-bold mb-4'>SnapByte</h3>
             <p className='text-gray-400 mb-6'>
-              "From hungry to happy in just a few clicks."
+              &quot;From hungry to happy in just a few clicks.&quot;
             </p>
             <div className='flex space-x-4'>
               <a
@@ -262,7 +262,7 @@ const Footer = () => {
         </div>
 
         <div className='border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm'>
-          <p>© {new Date().getFullYear()} FoodFinder. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SnapByte. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -630,7 +630,7 @@ const UserPage = () => {
   }
 
   return (
-    <div className='bg-gray-50 min-h-screen poppins-regular'>
+    <div className='bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen poppins-regular'>
       <Header
         user={user}
         cartCount={cart.reduce((total, item) => total + item.quantity, 0)}
