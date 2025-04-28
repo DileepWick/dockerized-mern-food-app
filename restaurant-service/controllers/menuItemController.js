@@ -1,5 +1,5 @@
 // controllers/menuItemController.js
-import MenuItem from '../models/menuItem.js';
+import MenuItem from '../models/MenuItem.js';
 import Restaurant from '../models/restaurant.js';
 import { validateToken } from '../utils/validateUser.js';
 
