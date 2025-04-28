@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {authService} from '../util/service-gateways';
+import { authService } from '../util/service-gateways';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function RegisterForm({ className, ...props }) {
+  const goDelivery = () => {
+    navigate('/DriverRegister');
+  };
+
+  const [nextRoute, setNextRoute] = useState(null);
+
   const [formData, setFormData] = useState({
     username: '',
     first_name: '',
@@ -37,15 +43,24 @@ export function RegisterForm({ className, ...props }) {
     }));
   };
 
-  const handleRoleSelect = (role) => {
+  const handleRoleSelect = (role, navigateTo = null) => {
     setFormData((prev) => ({
       ...prev,
       role,
     }));
-  };
 
+    if (navigateTo) {
+      setNextRoute(navigateTo);
+    } else {
+      setNextRoute(null);
+    }
+  };
   // Move to next form page
   const handleNext = () => {
+    if (nextRoute) {
+      navigate(nextRoute);
+      return;
+    }
     if (currentPage < 3) {
       setCurrentPage(currentPage + 1);
     }
@@ -64,18 +79,58 @@ export function RegisterForm({ className, ...props }) {
     setError(null);
     setLoading(true);
 
-    // Password validation
+    // Password match validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
-    // Role validation
+    // Password strength validation
+    if (!validatePassword(formData.password)) {
+      setError(
+        'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.'
+      );
+      setLoading(false);
+      return;
+    }
+
+    // Email format validation
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
+    // Phone number format validation
+    if (!validatePhoneNumber(formData.phone_number)) {
+      setError('Please enter a valid phone number.');
+      setLoading(false);
+      return;
+    }
+
+    // Role selection validation
     if (!formData.role) {
       setError('Please select a role');
       setLoading(false);
       return;
+    }
+
+    // Required field validation
+    const requiredFields = [
+      'username',
+      'first_name',
+      'last_name',
+      'street',
+      'city',
+      'postal_code',
+    ];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        setError(`Please fill out the ${field.replace('_', ' ')} field.`);
+        setLoading(false);
+        return;
+      }
     }
 
     // Prepare data for API call
@@ -98,7 +153,6 @@ export function RegisterForm({ className, ...props }) {
       const response = await authService.post('/register', userData);
 
       if (response.status === 201) {
-        // Redirect to login page
         navigate('/login');
       }
     } catch (err) {
@@ -143,6 +197,17 @@ export function RegisterForm({ className, ...props }) {
           onClick={() => handleRoleSelect('seller')}
         >
           <h3 className='font-bold text-2xl  text-center'>SELL</h3>
+        </div>
+
+        <div
+          className={`flex-1 p-6 cursor-pointer flex flex-col items-center justify-center rounded-xl border-2 hover:border-red-600 ${
+            formData.role === 'driver'
+              ? 'border-red-600 bg-[#FFEBE0]'
+              : 'border-gray-200'
+          }`}
+          onClick={() => handleRoleSelect('driver', '/DriverRegister')}
+        >
+          <h3 className='font-bold text-2xl  text-center'>DELIVER</h3>
         </div>
       </div>
     </div>,
@@ -400,6 +465,22 @@ export function RegisterForm({ className, ...props }) {
       ))}
     </div>
   );
+
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  function validatePassword(password) {
+    const re =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return re.test(password);
+  }
+
+  function validatePhoneNumber(phone) {
+    const re = /^[0-9]{10,15}$/; // Adjust as needed
+    return re.test(phone);
+  }
 
   return (
     <div

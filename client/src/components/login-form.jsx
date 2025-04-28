@@ -21,7 +21,7 @@ export function LoginForm({ className, ...props }) {
     user: '/userPage',
     driver: '/DriverDash',
   };
-  
+
   // Handle form submission
   async function handleLogin(e) {
     e.preventDefault();
@@ -101,6 +101,7 @@ export function LoginForm({ className, ...props }) {
                   <div className='flex items-center justify-between'>
                     <Label htmlFor='password'>Password</Label>
                     <Button
+                      type='button'
                       variant='ghost'
                       size='sm'
                       className='px-0 font-normal'
@@ -118,15 +119,6 @@ export function LoginForm({ className, ...props }) {
                       required
                       className='h-11 pr-10'
                     />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <></> : <></>}
-                    </Button>
                   </div>
                 </div>
               </div>
