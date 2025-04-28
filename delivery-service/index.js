@@ -24,7 +24,7 @@ app.use(cookieParser());
 // Enable CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allows only frontend running on localhost:5173
+    origin: ["http://localhost:5173","http://localhost:4173","http://localhost:30080","http://localhost:3007"], // Allows only frontend running on localhost:5173
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
     allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
     credentials: true, // Allow credentials (cookies) to be sent

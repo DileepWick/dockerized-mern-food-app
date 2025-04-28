@@ -161,7 +161,7 @@ const AcceptedDeliveries = () => {
   };
 
   const navigateToDriverDash = () => {
-    window.location.href = "http://localhost:4173/DriverDash";
+    window.location.href = "http://localhost:30080/DriverDash";
   };
 
   if (loading) {

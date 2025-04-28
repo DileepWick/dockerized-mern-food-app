@@ -216,7 +216,7 @@ const DeliveryDriverDashboard = () => {
   };
 
   const navigateToAcceptedDeliveries = () => {
-    window.location.href = "http://localhost:4173/acceptedDeliveries";
+    window.location.href = "http://localhost:30080/acceptedDeliveries";
   };
 
   if (loading) {

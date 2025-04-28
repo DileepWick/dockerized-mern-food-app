@@ -68,6 +68,7 @@ services:
       - backend
 
   delivery-service:
+  
     build:
       context: ./delivery-service
       dockerfile: ../delivery-service/Dockerfile

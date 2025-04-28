@@ -41,7 +41,7 @@ app.use(
 app.use(
   '/api/delivery',
   createProxyMiddleware({
-    target: 'http://delivery-service/api/delivery',
+    target: 'http://delivery-service:3001/api/delivery',
     changeOrigin: true,
   })
 );
