@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway-service
+  template:
+    metadata:
+      labels:
+        app: api-gateway-service
+    spec:
+      containers:
+      - name: api-gateway-service
+        image: ds-microservices_assignment-api-gateway-service:latest # Your locally built image
+        imagePullPolicy: Never 
+        ports:
+        - containerPort: 3007
+        env:
+        - name: PORT  # Add other environment variables if needed
+          value: "3007"
+        resources:
+          requests:
+            memory: "256Mi"   # Minimum amount of memory the container needs
+            cpu: "250m"       # Minimum amount of CPU the container needs
+          limits:
+            memory: "512Mi"   # Maximum memory the container can use
+            cpu: "500m"       # Maximum CPU the container can use
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-service
+spec:
+  selector:
+    app: api-gateway-service
+  ports:
+    - protocol: TCP
+      port: 3007         # The port on which the service will be exposed inside the cluster
+      targetPort: 3007   # The port on the container itself
+      nodePort: 30007    # The external port accessible via Kubernetes node IP
+  type: NodePort

@@ -21,6 +21,6 @@ USER appuser
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-EXPOSE 3007
+EXPOSE 3004
 
 CMD ["npm", "start"]
