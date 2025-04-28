@@ -1,12 +1,12 @@
 
 // src/util/order-utils.js
-import axios from 'axios';
+import { orderService } from './service-gateways.js';
 
 // Get all orders for the current logged-in user with optional status filter
 export const getUserOrders = async (statusFilter = null) => {
   try {
     // Make sure this endpoint matches exactly what's defined in your backend
-    let url = 'http://localhost:3007/api/order/user/orders';
+    let url = `${orderService}/user/orders`;
     
     // Add status filter if provided
     if (statusFilter) {
@@ -34,7 +34,7 @@ export const getUserOrders = async (statusFilter = null) => {
 // Create a new order
 export const createOrder = async (restaurantId, items) => {
   try {
-    let url = 'http://localhost:3007/api/order/orders';
+    let url = `${orderService}/orders`;
     const token = localStorage.getItem('authToken');
     const config = {
       headers: {
@@ -60,7 +60,7 @@ export const createOrder = async (restaurantId, items) => {
 export const addOrderItem = async (orderId, menuItemId, quantity = 1) => {
   try {
     // Define the URL as a variable
-    let url = `http://localhost:3007/api/order/orders/${orderId}/add-item`;
+    let url = `${orderService}/orders/${orderId}/add-item`;
     
     // Get the authentication token
     const token = localStorage.getItem('authToken');
@@ -102,7 +102,7 @@ export const removeOrderItem = async (orderId, orderItemId) => {
     };
     
     const response = await axios.patch(
-      `http://localhost:3007/api/order/orders/${orderId}/remove-item`,
+      `${orderService}/orders/${orderId}/remove-item`,
       {
         order_item_id: orderItemId
       },
@@ -129,7 +129,7 @@ export const updateItemQuantity = async (orderId, orderItemId, quantity) => {
     };
     
     const response = await axios.patch(
-      `http://localhost:3007/api/order/orders/${orderId}/update-quantity`,
+      `${orderService}/orders/${orderId}/update-quantity`,
       {
         order_item_id: orderItemId,
         quantity
@@ -157,7 +157,7 @@ export const confirmOrder = async (orderId) => {
     };
     
     const response = await axios.patch(
-      `http://localhost:3007/api/order/orders/${orderId}/confirm`,
+      `${orderService}/orders/${orderId}/confirm`,
       {},
       config
     );
@@ -173,7 +173,7 @@ export const confirmOrder = async (orderId) => {
 export const getRestaurantOrders = async (restaurantId, statusFilter = null) => {
     try {
       // Make sure this endpoint matches your backend route
-      let url = `http://localhost:3007/api/order/restaurants/${restaurantId}/orders`;
+      let url = `${orderService}/restaurants/${restaurantId}/orders`;
       
       // Add status filter if provided
       if (statusFilter) {
@@ -227,7 +227,7 @@ export const updateOrderStatus = async (orderId, status) => {
       console.log(`Updating order ${orderId} to status: ${status}`);
       
       const response = await axios.patch(
-        `http://localhost:3007/api/order/orders/${orderId}/status`,
+        `${orderService}/orders/${orderId}/status`,
         { status }, // Send status as is - already uppercase from the component
         config
       );
@@ -245,7 +245,6 @@ export const updateOrderStatus = async (orderId, status) => {
     }
   };
 
-import { orderService } from './service-gateways.js'; // Import centralized API instance
 
 // Get orders by postal code from order service (NO STATUS FILTER ANYMORE)
 export const getOrdersByPostalCode = async (postalCode) => {
@@ -279,7 +278,7 @@ export const updateOrderStatusByDriver = async (orderId, status) => {
 export const getOrderById = async (orderId) => {
   try {
     // Define the URL to fetch the order by MongoDB _id
-    const url = `http://localhost:3007/api/order/orders/id/${orderId}`;
+    const url = `${orderService}/orders/id/${orderId}`;
     
     // Get the authentication token
     const token = localStorage.getItem('authToken');

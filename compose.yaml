@@ -7,7 +7,7 @@ services:
     init: true
     env_file: ./restaurant-service/.env
     ports:
-      - "3005:3005"  # Expose on 3001 to avoid port conflicts
+      - "3005:3005" 
     networks:
       - backend
 

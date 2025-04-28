@@ -33,7 +33,7 @@ app.use(
 app.use(
   '/api/auth',
   createProxyMiddleware({
-    target: 'http://localhost:3000/api/auth',
+    target: 'http://auth-service:3000/api/auth',
     changeOrigin: true,
   })
 );
@@ -73,7 +73,7 @@ app.use(
 app.use(
   '/api/restaurant',
   createProxyMiddleware({
-    target: 'http://localhost:3005/api',
+    target: 'http://restaurant-service:3005/api',
     changeOrigin: true,
   })
 );
@@ -81,7 +81,7 @@ app.use(
 app.use(
   '/api/menu',
   createProxyMiddleware({
-    target: 'http://localhost:3005/api/menu',
+    target: 'http://restaurant-service/api/menu',
     changeOrigin: true,
   })
 );

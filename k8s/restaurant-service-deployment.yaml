@@ -17,12 +17,19 @@ spec:
         image: ds-microservices_assignment-restaurant-service:latest # Your locally built image
         imagePullPolicy: Never 
         ports:
-        - containerPort: 3001
+        - containerPort: 3005
         env:
         - name: MONGO_URI  # Replace with your actual environment variables
           value: "mongodb+srv://it22056252:cnPlCee4jr5SszIx@seproject.olebn.mongodb.net/?retryWrites=true&w=majority&appName=seproject"
         - name: PORT  # Add other environment variables if needed
-          value: "3001"
+          value: "3005"
+        - name: CLOUDINARY_API_SECRET
+          value: "wtIRq-axFaDZHmyBpUYjG4UCifo"
+        - name: CLOUDINARY_API_KEY
+          value: "424691573848857"
+        - name: CLOUDINARY_CLOUD_NAME
+          value: dpdrfruja
+
         resources:
           requests:
             memory: "256Mi"   # Minimum amount of memory the container needs
@@ -41,7 +48,7 @@ spec:
     app: restaurant-service
   ports:
     - protocol: TCP
-      port: 3001         # The port on which the service will be exposed inside the cluster
-      targetPort: 3001   # The port on the container itself
-      nodePort: 30001    # The external port accessible via Kubernetes node IP
+      port: 3005        # The port on which the service will be exposed inside the cluster
+      targetPort: 3005   # The port on the container itself
+      nodePort: 30005    # The external port accessible via Kubernetes node IP
   type: NodePort

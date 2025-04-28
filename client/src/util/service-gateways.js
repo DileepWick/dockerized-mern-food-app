@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Base URL of the API Gateway
-const GATEWAY_BASE_URL = 'http://localhost:3007/api';
+const GATEWAY_BASE_URL = 'http://localhost:30007/api';
 
 // Create axios instances routed through API Gateway
 const authService = axios.create({
