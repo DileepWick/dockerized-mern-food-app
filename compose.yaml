@@ -1,0 +1,94 @@
+services:
+  restaurant-service:
+    build:
+      context: ./restaurant-service
+      dockerfile: ../restaurant-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./restaurant-service/.env
+    ports:
+      - "3005:3005" 
+    networks:
+      - backend
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: ../order-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./order-service/.env
+    ports:
+      - "3003:3003" 
+    networks:
+      - backend
+
+  
+  client:
+    build:
+      context: ./client
+      dockerfile: ../client/Dockerfile
+    restart: unless-stopped
+    init: true
+    ports:
+      - "4173:4173"
+    networks:
+      - backend
+    depends_on:
+      - restaurant-service
+      - auth-service
+      - api-gateway-service
+
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: ../auth-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./auth-service/.env
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+  api-gateway-service:
+    build:
+      context: ./api-gateway-service
+      dockerfile: ../api-gateway-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./api-gateway-service/.env
+    ports:
+      - "3007:3007"
+    networks:
+      - backend
+
+  delivery-service:
+    build:
+      context: ./delivery-service
+      dockerfile: ../delivery-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./delivery-service/.env
+    ports:
+      - "3001:3001"
+    networks:
+      - backend
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: ../payment-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./payment-service/.env
+    ports:
+      - "3004:3004"
+    networks:
+      - backend
+
+
+networks:
+  backend:
+    driver: bridge
