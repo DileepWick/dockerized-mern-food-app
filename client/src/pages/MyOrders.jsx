@@ -25,6 +25,8 @@ const OrderDetailsModal = ({ order, onClose }) => {
         return 'bg-blue-50 text-blue-700';
       case 'prepared':
         return 'bg-green-50 text-green-700';
+      case 'accepted':
+        return 'bg-indigo-50 text-indigo-700';
       case 'picked_up':
         return 'bg-cyan-50 text-cyan-700';
       case 'delivered':
@@ -224,7 +226,7 @@ const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('ACCEPTED'); // Default to ACCEPTED
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   const statusOptions = [
@@ -232,6 +234,7 @@ const MyOrders = () => {
     { value: 'PENDING', label: 'Pending' },
     { value: 'CONFIRMED', label: 'Confirmed' },
     { value: 'PREPARED', label: 'Prepared' },
+    { value: 'ACCEPTED', label: 'Accepted' },
     { value: 'PICKED_UP', label: 'Picked Up' },
     { value: 'DELIVERED', label: 'Delivered' },
     { value: 'CANCELLED', label: 'Cancelled' },
@@ -288,6 +291,8 @@ const MyOrders = () => {
         return 'bg-blue-50 text-blue-700';
       case 'prepared':
         return 'bg-green-50 text-green-700';
+      case 'accepted':
+        return 'bg-indigo-50 text-indigo-700';
       case 'picked_up':
         return 'bg-cyan-50 text-cyan-700';
       case 'delivered':
@@ -320,7 +325,7 @@ const MyOrders = () => {
                 key={option.value || 'all'}
                 className={`bg-transparent border border-gray-200 py-2 px-4 mr-2.5 rounded-full cursor-pointer text-sm whitespace-nowrap transition-all duration-200 hover:bg-gray-100 ${
                   activeFilter === option.value
-                    ? 'bg-gray-800 text-black border-gray-800'
+                    ? 'bg-gray-800 text-white border-gray-800'
                     : 'text-gray-600'
                 }`}
                 onClick={() => setActiveFilter(option.value)}
