@@ -81,7 +81,7 @@ app.use(
 app.use(
   '/api/menu',
   createProxyMiddleware({
-    target: 'http://restaurant-service/api/menu',
+    target: 'http://restaurant-service:3005/api/menu',
     changeOrigin: true,
   })
 );
