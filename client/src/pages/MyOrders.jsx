@@ -325,7 +325,7 @@ const MyOrders = () => {
                 key={option.value || 'all'}
                 className={`bg-transparent border border-gray-200 py-2 px-4 mr-2.5 rounded-full cursor-pointer text-sm whitespace-nowrap transition-all duration-200 hover:bg-gray-100 ${
                   activeFilter === option.value
-                    ? 'bg-gray-800 text-white border-gray-800'
+                    ? 'bg-gray-800 text-black border-gray-800'
                     : 'text-gray-600'
                 }`}
                 onClick={() => setActiveFilter(option.value)}
@@ -385,9 +385,6 @@ const MyOrders = () => {
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className='flex flex-col items-center justify-center text-center py-14 px-5 bg-gray-50 rounded-lg border border-gray-200'>
-            <div className='mb-5 opacity-70'>
-              <img src='/api/placeholder/120/120' alt='No orders' />
-            </div>
             <h3 className='text-lg font-medium mb-2.5 text-gray-800'>
               No orders found
             </h3>
