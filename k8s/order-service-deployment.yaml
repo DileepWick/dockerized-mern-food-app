@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: ds-microservices_assignment-order-service:latest # Your locally built image
+        imagePullPolicy: Never 
+        ports:
+        - containerPort: 3003
+        env:
+        - name: MONGO_URI  # Replace with your actual environment variables
+          value: "mongodb+srv://it22056252:cnPlCee4jr5SszIx@seproject.olebn.mongodb.net/?retryWrites=true&w=majority&appName=seproject"
+        - name: PORT  # Add other environment variables if needed
+          value: "3003"
+
+        resources:
+          requests:
+            memory: "256Mi"   # Minimum amount of memory the container needs
+            cpu: "250m"       # Minimum amount of CPU the container needs
+          limits:
+            memory: "512Mi"   # Maximum memory the container can use
+            cpu: "500m"       # Maximum CPU the container can use
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order-service
+  ports:
+    - protocol: TCP
+      port: 3003        # The port on which the service will be exposed inside the cluster
+      targetPort: 3003   # The port on the container itself
+      nodePort: 30003    # The external port accessible via Kubernetes node IP
+  type: NodePort

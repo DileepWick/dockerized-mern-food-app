@@ -11,6 +11,18 @@ services:
     networks:
       - backend
 
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: ../order-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./order-service/.env
+    ports:
+      - "3003:3003" 
+    networks:
+      - backend
+
   
   client:
     build:
