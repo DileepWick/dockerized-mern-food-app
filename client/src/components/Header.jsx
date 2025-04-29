@@ -1,10 +1,25 @@
 import { User, ShoppingBag, Menu } from 'lucide-react';
 import { useState } from 'react';
+import { Loader2, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser } from '../util/auth-utils';
 
 const Header = ({ user, cartCount, onCartClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await logoutUser(); // Add this function to your auth-utils
+      window.location.href = '/login'; // Redirect to login page after logout
+    } catch (err) {
+      console.error('Error logging out:', err);
+      alert('Failed to log out. Please try again.');
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <header className='sticky bg-gray-50 pt-10 pb-3 top-0 z-10'>
@@ -36,6 +51,25 @@ const Header = ({ user, cartCount, onCartClick }) => {
                 </span>
               )}
             </button>
+            <div>
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className='inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+              >
+                {loggingOut ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Logging out...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className='h-4 w-4 mr-2' />
+                    Logout
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
         {/* Mobile menu button */}

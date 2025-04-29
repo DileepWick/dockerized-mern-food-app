@@ -344,6 +344,7 @@ const UserPage = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [featuredRestaurant, setFeaturedRestaurant] = useState(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // GSAP animation refs
   const pageContentRef = useRef(null);
@@ -577,6 +578,18 @@ const UserPage = () => {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
+  };
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await logoutUser(); // Add this function to your auth-utils
+      window.location.href = '/login'; // Redirect to login page after logout
+    } catch (err) {
+      console.error('Error logging out:', err);
+      alert('Failed to log out. Please try again.');
+      setLoggingOut(false);
+    }
   };
 
   const filteredRestaurants = searchQuery
