@@ -41,6 +41,7 @@ services:
       - delivery-service
       - payment-service
       - order-service
+      - notification-service
 
 
   auth-service:
@@ -89,6 +90,19 @@ services:
     env_file: ./payment-service/.env
     ports:
       - "3004:3004"
+    networks:
+      - backend
+
+  
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: ../notification-service/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: ./notification-service/.env
+    ports:
+      - "3002:3002"
     networks:
       - backend
 
