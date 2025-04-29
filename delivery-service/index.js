@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 
 
 import deliveryRoutes from './routes/deliveryRoutes.js'
-import driverStatusRoutes from './routes/driverStatusRoutes.js'
+
 
 
 // Load environment variables
@@ -42,7 +42,6 @@ connectDB(); // Use the function from your db.js to connect to MongoDB
 
 // Routes
 app.use('/api/delivery', deliveryRoutes);
-app.use('api/status',driverStatusRoutes);
 
 // Start server
 app.listen(process.env.PORT, () => {
