@@ -46,13 +46,13 @@ app.use(
   })
 );
 
-// app.use(
-//   '/api/notification',
-//   createProxyMiddleware({
-//     target: 'http://localhost:3002/api/notification',
-//     changeOrigin: true,
-//   })
-// );
+app.use(
+  '/api/notify',
+  createProxyMiddleware({
+    target: 'http://notification-service:3002/api/notify',
+    changeOrigin: true,
+  })
+);
 
 app.use(
   '/api/order',
@@ -86,13 +86,6 @@ app.use(
   })
 );
 
-// app.use(
-//   '/api/users',
-//   createProxyMiddleware({
-//     target: 'http://localhost:3006/api/users',
-//     changeOrigin: true,
-//   })
-// );
 
 app.use(
   '/api/cloudinary',
