@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { getLoggedInUser, getUserById } from "../util/auth-utils";
+import { Loader2, LogOut } from 'lucide-react';
+import { getLoggedInUser, getUserById, logoutUser } from "../util/auth-utils";
 import { getOrdersByPostalCode, updateOrderStatusByDriver } from "../util/order-utils";
 import { fetchRestaurantById } from "../util/restaurant-utils";
 import { createDeliveryUtil, updateDeliveryStatusUtil } from "../util/delivery-utils";
@@ -17,6 +17,7 @@ const DeliveryDriverDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processingOrderId, setProcessingOrderId] = useState(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -219,6 +220,18 @@ const DeliveryDriverDashboard = () => {
     window.location.href = "http://localhost:30080/acceptedDeliveries";
   };
 
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await logoutUser(); // Add this function to your auth-utils
+      window.location.href = "/login"; // Redirect to login page after logout
+    } catch (err) {
+      console.error("Error logging out:", err);
+      alert("Failed to log out. Please try again.");
+      setLoggingOut(false);
+    }
+  };
+
   if (loading) {
     return <LoadingState />;
   }
@@ -229,6 +242,36 @@ const DeliveryDriverDashboard = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen poppins-regular">
+      {/* Top Navigation Bar */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="text-xl font-semibold text-blue-600">Snap Bite</div>
+            </div>
+            <div>
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {loggingOut ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Logging out...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Dashboard Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
