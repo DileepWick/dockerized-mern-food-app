@@ -13,3 +13,4 @@ export const validateToken = async (token) => {
     return null;
   }
 };
+
