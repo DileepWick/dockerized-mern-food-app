@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 
 
 import deliveryRoutes from './routes/deliveryRoutes.js'
-import driverStatusRoutes from './routes/driverStatusRoutes.js'
+
 
 
 // Load environment variables
@@ -24,7 +24,7 @@ app.use(cookieParser());
 // Enable CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allows only frontend running on localhost:5173
+    origin: ["http://localhost:5173","http://localhost:4173","http://localhost:30080","http://localhost:3007"], // Allows only frontend running on localhost:5173
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
     allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
     credentials: true, // Allow credentials (cookies) to be sent
@@ -42,7 +42,6 @@ connectDB(); // Use the function from your db.js to connect to MongoDB
 
 // Routes
 app.use('/api/delivery', deliveryRoutes);
-app.use('api/status',driverStatusRoutes);
 
 // Start server
 app.listen(process.env.PORT, () => {

@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
-import { getLoggedInUser, getUserById } from "../util/auth-utils";
-import { getOrdersByPostalCode, updateOrderStatusByDriver } from "../util/order-utils";
-import { fetchRestaurantById } from "../util/restaurant-utils";
-import { createDeliveryUtil, updateDeliveryStatusUtil } from "../util/delivery-utils";
+import { Loader2, LogOut } from 'lucide-react';
+import { getLoggedInUser, getUserById, logoutUser } from '../util/auth-utils';
+import {
+  getOrdersByPostalCode,
+  updateOrderStatusByDriver,
+} from '../util/order-utils';
+import { fetchRestaurantById } from '../util/restaurant-utils';
+import {
+  createDeliveryUtil,
+  updateDeliveryStatusUtil,
+} from '../util/delivery-utils';
 
 // Imported Components
 import LoadingState from '../components/state/LoadingState';
@@ -17,89 +23,104 @@ const DeliveryDriverDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processingOrderId, setProcessingOrderId] = useState(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const loggedInUser = await getLoggedInUser();
-        console.log("Logged in user fetched successfully:", loggedInUser);
-        
+        console.log('Logged in user fetched successfully:', loggedInUser);
+
         if (!loggedInUser || !loggedInUser._id) {
-          throw new Error("Failed to get logged in user or user ID is missing");
+          throw new Error('Failed to get logged in user or user ID is missing');
         }
-        
+
         setUser(loggedInUser);
 
         const postalCode = loggedInUser.address?.postal_code;
 
         if (postalCode) {
           const fetchedOrders = await getOrdersByPostalCode(postalCode);
-          console.log("Fetched orders:", fetchedOrders);
+          console.log('Fetched orders:', fetchedOrders);
           setOrders(fetchedOrders || []);
-          
+
           // Fetch restaurant details and user details for each order
           const restaurantData = {};
           const userData = {};
-          
+
           for (const order of fetchedOrders || []) {
             // Fetch restaurant details
             if (order.restaurant_id && !restaurantData[order.restaurant_id]) {
               try {
-                const restaurant = await fetchRestaurantById(order.restaurant_id);
+                const restaurant = await fetchRestaurantById(
+                  order.restaurant_id
+                );
                 restaurantData[order.restaurant_id] = restaurant;
-                
+
                 // Fetch restaurant owner details
                 if (restaurant.owner_id && !userData[restaurant.owner_id]) {
                   try {
                     const ownerData = await getUserById(restaurant.owner_id);
                     // Log the entire owner user object
-                    console.log(`Restaurant Owner (${restaurant.name}) - Full User Object:`, ownerData);
+                    console.log(
+                      `Restaurant Owner (${restaurant.name}) - Full User Object:`,
+                      ownerData
+                    );
                     userData[restaurant.owner_id] = ownerData?.user || null;
                   } catch (ownerErr) {
-                    console.error(`Error fetching restaurant owner ${restaurant.owner_id}:`, ownerErr);
+                    console.error(
+                      `Error fetching restaurant owner ${restaurant.owner_id}:`,
+                      ownerErr
+                    );
                     userData[restaurant.owner_id] = {
-                      first_name: "Restaurant",
-                      last_name: "Staff",
-                      phone_number: restaurant?.phone || "Not available"
+                      first_name: 'Restaurant',
+                      last_name: 'Staff',
+                      phone_number: restaurant?.phone || 'Not available',
                     };
                   }
                 }
               } catch (restaurantErr) {
-                console.error(`Error fetching restaurant ${order.restaurant_id}:`, restaurantErr);
+                console.error(
+                  `Error fetching restaurant ${order.restaurant_id}:`,
+                  restaurantErr
+                );
                 restaurantData[order.restaurant_id] = null;
               }
             }
-            
+
             // Fetch buyer details
             if (order.user_id && !userData[order.user_id]) {
               try {
                 const buyerData = await getUserById(order.user_id);
                 userData[order.user_id] = buyerData?.user || null;
               } catch (buyerErr) {
-                console.error(`Error fetching buyer ${order.user_id}:`, buyerErr);
+                console.error(
+                  `Error fetching buyer ${order.user_id}:`,
+                  buyerErr
+                );
                 userData[order.user_id] = {
-                  first_name: "Unknown",
-                  last_name: "User",
+                  first_name: 'Unknown',
+                  last_name: 'User',
                   address: order.delivery_address || {
-                    street: "Address unavailable",
-                    city: "Unknown",
-                    postal_code: order.postal_code || "Unknown"
+                    street: 'Address unavailable',
+                    city: 'Unknown',
+                    postal_code: order.postal_code || 'Unknown',
                   },
-                  phone_number: "Not available"
+                  phone_number: 'Not available',
                 };
               }
             }
           }
-          
+
           setRestaurantDetails(restaurantData);
           setUserDetails(userData);
         } else {
-          console.log("No postal code found for user.");
+          console.log('No postal code found for user.');
         }
       } catch (err) {
-        console.error("Error loading dashboard:", err.message);
-        console.log("Full error object for dashboard load:", err);
-        setError("Failed to load dashboard.");
+        console.error('Error loading dashboard:', err.message);
+        console.log('Full error object for dashboard load:', err);
+        setError('Failed to load dashboard.');
       } finally {
         setLoading(false);
       }
@@ -109,12 +130,12 @@ const DeliveryDriverDashboard = () => {
   }, []);
 
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
+    const options = {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
@@ -122,93 +143,107 @@ const DeliveryDriverDashboard = () => {
   const handleAcceptDelivery = async (order) => {
     try {
       setProcessingOrderId(order._id);
-      console.log("Accepting delivery for order:", order._id);
-      
+      console.log('Accepting delivery for order:', order._id);
+
       if (!user || !user._id) {
-        throw new Error("Driver user ID is missing. Please log in again.");
+        throw new Error('Driver user ID is missing. Please log in again.');
       }
-      
-      console.log("Driver ID for delivery:", user._id);
-      
+
+      console.log('Driver ID for delivery:', user._id);
+
       // Get restaurant and buyer details
       const restaurant = restaurantDetails[order.restaurant_id];
       const restaurantOwner = userDetails[restaurant?.owner_id];
       const buyer = userDetails[order.user_id];
-      
+
       if (!restaurant) {
         throw new Error(`Restaurant details not found for order ${order._id}`);
       }
-      
+
       if (!order._id) {
         throw new Error(`Order ID is missing for this order`);
       }
-      
+
       // Just accept the delivery - set to ACCEPTED status
       const newStatus = 'ACCEPTED';
-      
+
       // Calculate total amount if not available in order
-      const totalAmount = order.total_amount || 
-        (order.items || []).reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-      
+      const totalAmount =
+        order.total_amount ||
+        (order.items || []).reduce(
+          (sum, item) => sum + item.price * (item.quantity || 1),
+          0
+        );
+
       // Determine the restaurant address to use - prefer restaurant address, fall back to owner address
       let restaurantAddress = restaurant.address;
-      
+
       // If restaurant address is missing or incomplete, use owner's address if available
-      if ((!restaurantAddress || !restaurantAddress.street || !restaurantAddress.city) && 
-          restaurantOwner && restaurantOwner.address) {
-        console.log("Using restaurant owner's address for delivery:", restaurantOwner.address);
+      if (
+        (!restaurantAddress ||
+          !restaurantAddress.street ||
+          !restaurantAddress.city) &&
+        restaurantOwner &&
+        restaurantOwner.address
+      ) {
+        console.log(
+          "Using restaurant owner's address for delivery:",
+          restaurantOwner.address
+        );
         restaurantAddress = restaurantOwner.address;
       }
-      
+
       if (!restaurantAddress || !restaurantAddress.street) {
-        console.log("No valid restaurant address found, using default");
+        console.log('No valid restaurant address found, using default');
         restaurantAddress = {
-          street: "Address unavailable", 
-          city: "Unknown",
-          postal_code: "Unknown"
+          street: 'Address unavailable',
+          city: 'Unknown',
+          postal_code: 'Unknown',
         };
       }
-      
+
       // Prepare delivery data
       const deliveryData = {
         order_id: order._id,
         driver_id: user._id, // Current logged-in driver's ID
         restaurant_id: order.restaurant_id, // Add restaurant_id from order
         total_amount: totalAmount, // Add total_amount either from order or calculated
-        buyer_address: buyer?.address || order.delivery_address || {
-          street: "Address unavailable",
-          city: "Unknown",
-          postal_code: order.postal_code || "Unknown"
-        },
+        buyer_address: buyer?.address ||
+          order.delivery_address || {
+            street: 'Address unavailable',
+            city: 'Unknown',
+            postal_code: order.postal_code || 'Unknown',
+          },
         restaurant_address: restaurantAddress,
-        items: order.items || []
+        items: order.items || [],
       };
-      
-      console.log("Creating delivery with data:", deliveryData);
-      
+
+      console.log('Creating delivery with data:', deliveryData);
+
       // Create delivery entry
       const createdDelivery = await createDeliveryUtil(deliveryData);
-      console.log("Delivery created:", createdDelivery);
-      
+      console.log('Delivery created:', createdDelivery);
+
       // Update order status to ACCEPTED
       if (order.order_id) {
         await updateOrderStatusByDriver(order.order_id, newStatus);
       } else {
         await updateOrderStatusByDriver(order._id, newStatus);
       }
-      
+
       // Update local state to reflect the change
-      setOrders(orders.map(o => 
-        o._id === order._id ? { ...o, status: newStatus } : o
-      ));
-      
+      setOrders(
+        orders.map((o) =>
+          o._id === order._id ? { ...o, status: newStatus } : o
+        )
+      );
+
       console.log(`Successfully accepted delivery for order ${order._id}`);
-      
+
       // Refresh the page
       //window.location.reload();
-      
     } catch (error) {
-      console.error("Error accepting delivery:", error);
+      console.error('Error accepting delivery:', error);
       alert(`Failed to accept delivery: ${error.message}`);
     } finally {
       setProcessingOrderId(null);
@@ -216,7 +251,19 @@ const DeliveryDriverDashboard = () => {
   };
 
   const navigateToAcceptedDeliveries = () => {
-    window.location.href = "http://localhost:5173/acceptedDeliveries";
+    window.location.href = 'http://localhost:30080/acceptedDeliveries';
+  };
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await logoutUser(); // Add this function to your auth-utils
+      window.location.href = '/login'; // Redirect to login page after logout
+    } catch (err) {
+      console.error('Error logging out:', err);
+      alert('Failed to log out. Please try again.');
+      setLoggingOut(false);
+    }
   };
 
   if (loading) {
@@ -228,25 +275,60 @@ const DeliveryDriverDashboard = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen poppins-regular">
-      {/* Dashboard Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
+    <div className='bg-gray-50 min-h-screen poppins-regular'>
+      {/* Top Navigation Bar */}
+      <div className='bg-white shadow-sm border-b border-gray-200'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+          <div className='flex justify-between items-center h-16'>
+            <div className='flex items-center'>
+              <div className='text-xl font-semibold text-blue-600'>
+                Snap Bite
+              </div>
+            </div>
             <div>
-              <h1 className="text-2xl font-semibold text-gray-800">
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className='inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+              >
+                {loggingOut ? (
+                  <>
+                    <Loader2 className='h-4 w-4 mr-2 animate-spin' />
+                    Logging out...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className='h-4 w-4 mr-2' />
+                    Logout
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Dashboard Header */}
+      <div className='bg-white shadow'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
+          <div className='flex justify-between items-center'>
+            <div>
+              <h1 className='text-2xl font-semibold text-gray-800'>
                 Driver Dashboard
               </h1>
-              <p className="text-gray-600">
-                Welcome, {user?.first_name}! Service area: {user?.address?.postal_code}
+              <p className='text-gray-600'>
+                Welcome, {user?.first_name}! Service area:{' '}
+                {user?.address?.postal_code}
               </p>
               {user?._id && (
-                <p className="text-xs text-gray-500 mt-1">Driver ID: {user._id}</p>
+                <p className='text-xs text-gray-500 mt-1'>
+                  Driver ID: {user._id}
+                </p>
               )}
             </div>
             <button
               onClick={navigateToAcceptedDeliveries}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className='inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
             >
               View My Deliveries
             </button>
@@ -254,176 +336,275 @@ const DeliveryDriverDashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {orders.length === 0 ? (
-          <div className="bg-white shadow rounded-lg p-12 text-center">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          <div className='bg-white shadow rounded-lg p-12 text-center'>
+            <div className='mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                className='h-8 w-8 text-gray-400'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'
+                />
               </svg>
             </div>
-            <h3 className="mt-3 text-lg font-medium text-gray-900">No Deliveries Available</h3>
-            <p className="mt-2 text-sm text-gray-500">
+            <h3 className='mt-3 text-lg font-medium text-gray-900'>
+              No Deliveries Available
+            </h3>
+            <p className='mt-2 text-sm text-gray-500'>
               There are currently no deliveries in your postal code area.
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className='space-y-6'>
             {orders.map((order) => {
               const restaurant = restaurantDetails[order.restaurant_id];
               const buyer = userDetails[order.user_id];
               const isProcessing = processingOrderId === order._id;
-              
+
               return (
-                <div key={order._id} className="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                <div
+                  key={order._id}
+                  className='bg-white rounded-lg shadow overflow-hidden border border-gray-200'
+                >
                   {/* Order Header */}
-                  <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <div className="flex items-center">
+                  <div className='p-4 border-b border-gray-200 flex justify-between items-center'>
+                    <div className='flex items-center'>
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900">{restaurant?.name || "Restaurant"}</h3>
-                        <p className="text-sm text-gray-500">
-                          Order #{order._id.substring(0, 8)} • {formatDate(order.created_at || new Date())}
+                        <h3 className='text-lg font-medium text-gray-900'>
+                          {restaurant?.name || 'Restaurant'}
+                        </h3>
+                        <p className='text-sm text-gray-500'>
+                          Order #{order._id.substring(0, 8)} •{' '}
+                          {formatDate(order.created_at || new Date())}
                         </p>
                       </div>
                     </div>
                     <div>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                        order.status === 'PREPARED' ? 'bg-yellow-100 text-yellow-800' :
-                        order.status === 'ACCEPTED' ? 'bg-purple-100 text-purple-800' :
-                        order.status === 'PICKED_UP' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {order.status?.replace('_', ' ') || "Processing"}
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          order.status === 'PREPARED'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : order.status === 'ACCEPTED'
+                            ? 'bg-purple-100 text-purple-800'
+                            : order.status === 'PICKED_UP'
+                            ? 'bg-blue-100 text-blue-800'
+                            : order.status === 'DELIVERED'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {order.status?.replace('_', ' ') || 'Processing'}
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Order Details */}
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className='p-4 border-b border-gray-200'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                       {/* Locations */}
-                      <div className="space-y-4">
+                      <div className='space-y-4'>
                         {/* Restaurant Location */}
                         <div>
-                          <h4 className="text-sm font-medium text-gray-500 mb-1">Pickup From</h4>
+                          <h4 className='text-sm font-medium text-gray-500 mb-1'>
+                            Pickup From
+                          </h4>
                           {restaurant ? (
-                            <div className="text-gray-800">
-                              <p className="font-medium">{restaurant.name}</p>
-                              
+                            <div className='text-gray-800'>
+                              <p className='font-medium'>{restaurant.name}</p>
+
                               {/* Use restaurant address or owner address if restaurant address is not available */}
                               {restaurant.address?.street && (
-                                <p className="text-sm">{restaurant.address.street}</p>
+                                <p className='text-sm'>
+                                  {restaurant.address.street}
+                                </p>
                               )}
                               {restaurant.address?.city && (
-                                <p className="text-sm">
+                                <p className='text-sm'>
                                   {restaurant.address.city}
-                                  {restaurant.address?.postal_code && `, ${restaurant.address.postal_code}`}
+                                  {restaurant.address?.postal_code &&
+                                    `, ${restaurant.address.postal_code}`}
                                 </p>
                               )}
-                              
+
                               {/* If restaurant doesn't have address but owner does, use owner's address */}
-                              {!restaurant.address?.street && userDetails[restaurant.owner_id]?.address?.street && (
-                                <p className="text-sm">{userDetails[restaurant.owner_id].address.street}</p>
-                              )}
-                              {!restaurant.address?.city && userDetails[restaurant.owner_id]?.address?.city && (
-                                <p className="text-sm">
-                                  {userDetails[restaurant.owner_id].address.city}
-                                  {userDetails[restaurant.owner_id].address?.postal_code && 
-                                    `, ${userDetails[restaurant.owner_id].address.postal_code}`}
-                                </p>
-                              )}
-                              
+                              {!restaurant.address?.street &&
+                                userDetails[restaurant.owner_id]?.address
+                                  ?.street && (
+                                  <p className='text-sm'>
+                                    {
+                                      userDetails[restaurant.owner_id].address
+                                        .street
+                                    }
+                                  </p>
+                                )}
+                              {!restaurant.address?.city &&
+                                userDetails[restaurant.owner_id]?.address
+                                  ?.city && (
+                                  <p className='text-sm'>
+                                    {
+                                      userDetails[restaurant.owner_id].address
+                                        .city
+                                    }
+                                    {userDetails[restaurant.owner_id].address
+                                      ?.postal_code &&
+                                      `, ${
+                                        userDetails[restaurant.owner_id].address
+                                          .postal_code
+                                      }`}
+                                  </p>
+                                )}
+
                               {/* Contact information */}
-                              {restaurant.phone && <p className="text-sm">📞 {restaurant.phone}</p>}
-                              {!restaurant.phone && userDetails[restaurant.owner_id]?.phone_number && (
-                                <p className="text-sm">📞 {userDetails[restaurant.owner_id].phone_number}</p>
+                              {restaurant.phone && (
+                                <p className='text-sm'>📞 {restaurant.phone}</p>
                               )}
-                              
+                              {!restaurant.phone &&
+                                userDetails[restaurant.owner_id]
+                                  ?.phone_number && (
+                                  <p className='text-sm'>
+                                    📞{' '}
+                                    {
+                                      userDetails[restaurant.owner_id]
+                                        .phone_number
+                                    }
+                                  </p>
+                                )}
+
                               {/* Owner information */}
                               {userDetails[restaurant.owner_id]?.first_name && (
-                                <p className="text-sm text-gray-500 mt-1">
-                                  Contact: {userDetails[restaurant.owner_id].first_name} {userDetails[restaurant.owner_id].last_name}
+                                <p className='text-sm text-gray-500 mt-1'>
+                                  Contact:{' '}
+                                  {userDetails[restaurant.owner_id].first_name}{' '}
+                                  {userDetails[restaurant.owner_id].last_name}
                                 </p>
                               )}
                             </div>
                           ) : (
-                            <div className="flex items-center text-sm text-gray-500">
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <div className='flex items-center text-sm text-gray-500'>
+                              <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                               Loading details...
                             </div>
                           )}
                         </div>
-                        
+
                         {/* Customer Location */}
                         <div>
-                          <h4 className="text-sm font-medium text-gray-500 mb-1">Deliver To</h4>
+                          <h4 className='text-sm font-medium text-gray-500 mb-1'>
+                            Deliver To
+                          </h4>
                           {buyer ? (
-                            <div className="text-gray-800">
-                              <p className="font-medium">{buyer.first_name} {buyer.last_name}{buyer.first_name === "Unknown" && " (User not found)"}</p>
-                              {(buyer.address?.street || order.delivery_address?.street) && 
-                                <p className="text-sm">{buyer.address?.street || order.delivery_address?.street}</p>
-                              }
-                              {(buyer.address?.city || order.delivery_address?.city || buyer.address?.postal_code || order.delivery_address?.postal_code || order.postal_code) && 
-                                <p className="text-sm">
-                                  {buyer.address?.city || order.delivery_address?.city || ""}
-                                  {(buyer.address?.city || order.delivery_address?.city) && (buyer.address?.postal_code || order.delivery_address?.postal_code || order.postal_code) && ", "}
-                                  {buyer.address?.postal_code || order.delivery_address?.postal_code || order.postal_code || ""}
+                            <div className='text-gray-800'>
+                              <p className='font-medium'>
+                                {buyer.first_name} {buyer.last_name}
+                                {buyer.first_name === 'Unknown' &&
+                                  ' (User not found)'}
+                              </p>
+                              {(buyer.address?.street ||
+                                order.delivery_address?.street) && (
+                                <p className='text-sm'>
+                                  {buyer.address?.street ||
+                                    order.delivery_address?.street}
                                 </p>
-                              }
-                              {(buyer.phone_number || order.phone_number) && 
-                                <p className="text-sm">{buyer.phone_number || order.phone_number}</p>
-                              }
+                              )}
+                              {(buyer.address?.city ||
+                                order.delivery_address?.city ||
+                                buyer.address?.postal_code ||
+                                order.delivery_address?.postal_code ||
+                                order.postal_code) && (
+                                <p className='text-sm'>
+                                  {buyer.address?.city ||
+                                    order.delivery_address?.city ||
+                                    ''}
+                                  {(buyer.address?.city ||
+                                    order.delivery_address?.city) &&
+                                    (buyer.address?.postal_code ||
+                                      order.delivery_address?.postal_code ||
+                                      order.postal_code) &&
+                                    ', '}
+                                  {buyer.address?.postal_code ||
+                                    order.delivery_address?.postal_code ||
+                                    order.postal_code ||
+                                    ''}
+                                </p>
+                              )}
+                              {(buyer.phone_number || order.phone_number) && (
+                                <p className='text-sm'>
+                                  {buyer.phone_number || order.phone_number}
+                                </p>
+                              )}
                             </div>
                           ) : (
-                            <div className="flex items-center text-sm text-gray-500">
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <div className='flex items-center text-sm text-gray-500'>
+                              <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                               Loading details...
                             </div>
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Order Summary */}
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500 mb-2">Order Summary</h4>
-                        <div className="bg-gray-50 rounded-md p-3">
+                        <h4 className='text-sm font-medium text-gray-500 mb-2'>
+                          Order Summary
+                        </h4>
+                        <div className='bg-gray-50 rounded-md p-3'>
                           {/* Order items would go here - mocked for now */}
-                          <div className="space-y-2">
-                            {(order.items || []).slice(0, 3).map((item, index) => (
-                              <div key={index} className="flex justify-between text-sm">
-                                <span className="text-gray-800">
-                                  <span className="font-medium mr-1">{item?.quantity || 1}×</span>
-                                  {item?.name || `Menu Item ${index + 1}`}
-                                </span>
-                                <span className="text-gray-800 font-medium">₹{item?.price || ((index + 1) * 100).toFixed(2)}</span>
-                              </div>
-                            ))}
+                          <div className='space-y-2'>
+                            {(order.items || [])
+                              .slice(0, 3)
+                              .map((item, index) => (
+                                <div
+                                  key={index}
+                                  className='flex justify-between text-sm'
+                                >
+                                  <span className='text-gray-800'>
+                                    <span className='font-medium mr-1'>
+                                      {item?.quantity || 1}×
+                                    </span>
+                                    {item?.name || `Menu Item ${index + 1}`}
+                                  </span>
+                                  <span className='text-gray-800 font-medium'>
+                                    ₹
+                                    {item?.price ||
+                                      ((index + 1) * 100).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
                             {(order.items?.length || 0) > 3 && (
-                              <div className="text-sm text-gray-500 italic">
+                              <div className='text-sm text-gray-500 italic'>
                                 +{(order.items?.length || 0) - 3} more items
                               </div>
                             )}
-                            <div className="pt-2 mt-2 border-t border-gray-200 flex justify-between">
-                              <span className="font-medium">Total</span>
-                              <span className="font-bold">₹{order.total_amount?.toFixed(2) || '450.00'}</span>
+                            <div className='pt-2 mt-2 border-t border-gray-200 flex justify-between'>
+                              <span className='font-medium'>Total</span>
+                              <span className='font-bold'>
+                                ₹{order.total_amount?.toFixed(2) || '450.00'}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Actions - Single Accept Delivery button */}
-                  <div className="p-4 bg-gray-50 flex justify-end space-x-3">
-                    <button 
+                  <div className='p-4 bg-gray-50 flex justify-end space-x-3'>
+                    <button
                       onClick={() => handleAcceptDelivery(order)}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className='inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                       disabled={order.status !== 'PREPARED' || isProcessing}
                     >
                       {isProcessing ? (
                         <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className='h-4 w-4 mr-2 animate-spin' />
                           Processing...
                         </>
                       ) : (

@@ -33,7 +33,7 @@ app.use(
 app.use(
   '/api/auth',
   createProxyMiddleware({
-    target: 'http://localhost:3000/api/auth',
+    target: 'http://auth-service:3000/api/auth',
     changeOrigin: true,
   })
 );
@@ -41,23 +41,23 @@ app.use(
 app.use(
   '/api/delivery',
   createProxyMiddleware({
-    target: 'http://localhost:3001/api/delivery',
+    target: 'http://delivery-service:3001/api/delivery',
     changeOrigin: true,
   })
 );
 
-app.use(
-  '/api/notification',
-  createProxyMiddleware({
-    target: 'http://localhost:3002/api/notification',
-    changeOrigin: true,
-  })
-);
+// app.use(
+//   '/api/notification',
+//   createProxyMiddleware({
+//     target: 'http://localhost:3002/api/notification',
+//     changeOrigin: true,
+//   })
+// );
 
 app.use(
   '/api/order',
   createProxyMiddleware({
-    target: 'http://localhost:3003/api/orders',
+    target: 'http://order-service:3003/api/orders',
     changeOrigin: true,
   })
 );
@@ -65,7 +65,7 @@ app.use(
 app.use(
   '/api/payment',
   createProxyMiddleware({
-    target: 'http://localhost:3004/api/payments',
+    target: 'http://payment-service:3004/api/payments',
     changeOrigin: true,
   })
 );
@@ -73,7 +73,7 @@ app.use(
 app.use(
   '/api/restaurant',
   createProxyMiddleware({
-    target: 'http://localhost:3005/api',
+    target: 'http://restaurant-service:3005/api',
     changeOrigin: true,
   })
 );
@@ -81,23 +81,23 @@ app.use(
 app.use(
   '/api/menu',
   createProxyMiddleware({
-    target: 'http://localhost:3005/api/menu',
+    target: 'http://restaurant-service:3005/api/menu',
     changeOrigin: true,
   })
 );
 
-app.use(
-  '/api/users',
-  createProxyMiddleware({
-    target: 'http://localhost:3006/api/users',
-    changeOrigin: true,
-  })
-);
+// app.use(
+//   '/api/users',
+//   createProxyMiddleware({
+//     target: 'http://localhost:3006/api/users',
+//     changeOrigin: true,
+//   })
+// );
 
 app.use(
   '/api/cloudinary',
   createProxyMiddleware({
-    target: 'http://localhost:3005/api/cloudinary',
+    target: 'http://restaurant-service/api/cloudinary',
     pathRewrite: { '^/api/cloudinary': '' },
     changeOrigin: true,
   })

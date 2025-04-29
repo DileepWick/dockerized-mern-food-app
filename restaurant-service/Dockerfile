@@ -25,7 +25,7 @@ ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Expose the port (default to 3000 if not set at runtime)
-EXPOSE 3000
+EXPOSE 3005
 
 # Start the service
 CMD ["npm", "start"]

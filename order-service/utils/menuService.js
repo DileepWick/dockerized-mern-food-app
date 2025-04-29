@@ -16,7 +16,7 @@ export const getMenuItemDetails = async (menuItemId) => {
 //get restaurant details from restaurant service
 export const getRestaurantDetails = async (restaurantId) => {
   try {
-    const response = await axios.get(`http://localhost:3005/api/restaurant/${restaurantId}`);
+    const response = await restaurantService.get(`/restaurant/${restaurantId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching restaurant ${restaurantId}:`, error.message);
