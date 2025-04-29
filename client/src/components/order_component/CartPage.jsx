@@ -10,6 +10,7 @@ import {
 import Header from '../Header';
 import LoadingState from '../state/LoadingState';
 import ErrorState from '../state/ErrorState';
+import { sendEmail } from '../../util/notification-utils';
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -120,6 +121,9 @@ const CartPage = () => {
       // Clear cart data
       localStorage.removeItem('currentCart');
       localStorage.removeItem('currentOrder');
+
+      sendEmail(
+        user.email,"Order Confirmation From SnapByte",`<h1>Thank you for ordering from SnapByte!</h1><p>Your order is on the way 🚀</p><p>Order ID :${currentOrder.orderDetails.order_id}</p><p>Order ID :${currentOrder.orderDetails.total_amount}</p>`);
 
       // Redirect to orders page
       navigate('/MyOrders');

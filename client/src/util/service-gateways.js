@@ -16,7 +16,7 @@ const deliveryService = axios.create({
 });
 
 const notificationService = axios.create({
-  baseURL: `${GATEWAY_BASE_URL}/notification`,
+  baseURL: `${GATEWAY_BASE_URL}/notify`,
   withCredentials: true,
 });
 
